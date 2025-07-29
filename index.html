@@ -2,74 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fantasy Draft Race - Pure Odds</title>
+  <title>Fantasy Draft Race (Pure Odds)</title>
   <style>
     body {
       font-family: sans-serif;
-      background-color: #f4f4f4;
+      background-color: #1e3d1a;
+      color: white;
       padding: 20px;
     }
-    #setup, #raceArea, #results {
+    h2 {
+      text-align: center;
+    }
+    #setup, #results {
       margin-top: 20px;
-    }
-    .runner {
-      width: 60px;
-      height: 60px;
-      background-color: transparent;
-      position: absolute;
-      left: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .runner img {
-      width: 40px;
-      height: 40px;
-    }
-    .track {
-      position: relative;
-      height: 70px;
-      background: #228B22;
-      margin-bottom: 10px;
-      border: 2px solid white;
-      background-image: repeating-linear-gradient(
-        to right,
-        #228B22,
-        #228B22 10px,
-        #2E8B57 10px,
-        #2E8B57 20px
-      );
-    }
-    #raceField {
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid #444;
-      border-collapse: collapse;
-      padding: 5px 10px;
-    }
-    #totalOdds {
-      font-weight: bold;
     }
     .note {
       margin-top: 20px;
       padding: 10px;
       background-color: #eef9ff;
+      color: black;
       border-left: 5px solid #0077cc;
+    }
+    #raceField {
+      position: relative;
+      height: 500px;
+      background: repeating-linear-gradient(
+        to right,
+        #2e8b57,
+        #2e8b57 50px,
+        #228b22 50px,
+        #228b22 100px
+      );
+      border: 4px solid white;
+      margin-top: 20px;
+    }
+    .runner {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 60px;
+    }
+    .runner img {
+      width: 40px;
+      height: 40px;
+    }
+    table, th, td {
+      border: 1px solid #444;
+      border-collapse: collapse;
+      padding: 5px 10px;
+      background: white;
+      color: black;
+    }
+    #totalOdds {
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-
 <h2>Fantasy Football Draft Race (Pure Odds)</h2>
 
 <div class="note">
   <strong>How the Draft Order Is Determined:</strong>
   <p>
-    This app uses a <em>weighted random draw system</em> to determine draft order based on odds that each team inputs. 
-    Before each race, a winner is drawn using a probability algorithm that strictly respects the exact odds provided (e.g., 25% odds means a 25% chance of being drawn). 
-    The race animation is then played <strong>to match the outcome</strong>—it is visual only, not the deciding factor.
-    After each race, the winner is removed from the pool and the next draw occurs, continuing until all draft spots are filled.
+    This app uses a <em>weighted random draw system</em> to determine draft order based on user-defined odds. 
+    Each round draws a winner using a strict probability method. 
+    The race is then visually animated with dramatic lead changes while ensuring the drawn winner always finishes first.
+    After each round, the winner is removed and a new race begins with remaining players.
   </p>
 </div>
 
@@ -83,9 +82,7 @@
   <button onclick="startNextRace()">Start Race</button>
 </div>
 
-<div id="raceArea">
-  <div id="raceField"></div>
-</div>
+<div id="raceField"></div>
 
 <div id="results" style="display:none;">
   <h3>Final Draft Order</h3>
@@ -96,12 +93,11 @@
 
 <audio id="whistle" src="https://www.soundjay.com/button/sounds/beep-07.mp3" preload="auto"></audio>
 <audio id="cheer" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
-
 <script>
   let originalPlayers = [];
   let remainingPlayers = [];
   let finalOrder = [];
-  const finishLine = 600;
+  const finishLine = 700;
 
   function generatePlayerInputs() {
     const count = parseInt(document.getElementById('playerCount').value);
@@ -162,7 +158,7 @@
     }
 
     const winner = weightedDraw(remainingPlayers);
-    animateWinner(winner.name, () => {
+    animateRace(winner.name, () => {
       finalOrder.push(winner.name);
       const row = document.getElementById('resultTable').insertRow();
       row.insertCell().innerText = finalOrder.length;
@@ -175,45 +171,57 @@
       }
     });
   }
-
-  function animateWinner(winnerName, callback) {
-    const raceField = document.getElementById('raceField');
-    raceField.innerHTML = '';
-
-    const track = document.createElement('div');
-    track.className = 'track';
-    track.style.width = finishLine + 100 + 'px';
-
-    const runner = document.createElement('div');
-    runner.className = 'runner';
-
-    const img = document.createElement('img');
-    img.src = 'https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png';
-    img.alt = winnerName;
-
-    const label = document.createElement('div');
-    label.innerText = winnerName;
-    label.style.fontSize = '12px';
-    label.style.color = 'white';
-
-    runner.appendChild(img);
-    runner.appendChild(label);
-    track.appendChild(runner);
-    raceField.appendChild(track);
-
+  function animateRace(winnerName, callback) {
+    const field = document.getElementById('raceField');
+    field.innerHTML = '';
+    const runners = [];
+    const laneHeight = 60;
     document.getElementById('whistle').play();
-    let x = 0;
-    function animate() {
-      if (x >= finishLine) {
+
+    remainingPlayers.forEach((player, i) => {
+      const runner = document.createElement('div');
+      runner.className = 'runner';
+      runner.style.top = (i * laneHeight + 10) + 'px';
+
+      const img = document.createElement('img');
+      img.src = 'https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png';
+      img.alt = player.name;
+
+      const label = document.createElement('div');
+      label.innerText = player.name;
+      label.style.fontSize = '12px';
+      label.style.color = 'white';
+
+      runner.appendChild(img);
+      runner.appendChild(label);
+      field.appendChild(runner);
+      runners.push({
+        div: runner,
+        name: player.name,
+        x: 0,
+        speed: Math.random() * 1.5 + 0.5
+      });
+    });
+
+    const winner = runners.find(r => r.name === winnerName);
+    let finished = false;
+    const interval = setInterval(() => {
+      runners.forEach(r => {
+        if (r === winner) {
+          r.x += r.speed + 1; // slightly faster
+        } else {
+          r.x += r.speed + Math.random() * 0.5;
+        }
+        r.div.style.left = r.x + 'px';
+      });
+
+      if (!finished && winner.x >= finishLine) {
+        clearInterval(interval);
         document.getElementById('cheer').play();
         callback();
-      } else {
-        x += 6;
-        runner.style.left = x + 'px';
-        requestAnimationFrame(animate);
+        finished = true;
       }
-    }
-    animate();
+    }, 30);
   }
 
   window.onload = generatePlayerInputs;
@@ -221,3 +229,4 @@
 
 </body>
 </html>
+
