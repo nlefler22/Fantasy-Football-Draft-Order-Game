@@ -29,7 +29,7 @@
 
     #raceField {
       position: relative;
-      width: 800px; /* fixed field length */
+      width: 800px;
       height: 500px;
       background: repeating-linear-gradient(
         to right,
@@ -115,6 +115,7 @@
 
 <audio id="whistle" src="https://www.soundjay.com/button/sounds/beep-07.mp3" preload="auto"></audio>
 <audio id="cheer" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
+
 <script>
   let originalPlayers = [];
   let remainingPlayers = [];
@@ -225,32 +226,33 @@
         div: runnerDiv,
         x: 0,
         speed: Math.random() * 1.5 + 0.5,
-        boost: player.name === winnerName ? 1 : 0.9,
         hasSurged: false
       };
     });
 
     const winnerRunner = runners.find(r => r.name === winnerName);
+
     let tick = 0;
     const interval = setInterval(() => {
       tick++;
 
       runners.forEach(runner => {
-        // Give random fluctuation
         const randomness = Math.sin(tick / 10 + Math.random()) * 0.5;
 
-        // Let winner hang behind for first 2/3rds of race
         if (runner.name === winnerName) {
-          if (runner.x < finishLine * 0.66) {
+          if (runner.x < finishLine * 0.5) {
             runner.x += (runner.speed + randomness) * 0.5;
           } else {
             runner.x += (runner.speed + randomness + 1.5);
           }
         } else {
           runner.x += (runner.speed + randomness);
+          if (runner.x >= finishLine - 40) {
+            runner.x = finishLine - 40; // Clamp
+          }
         }
 
-        runner.div.style.left = runner.x + 'px';
+        runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
       });
 
       if (winnerRunner.x >= finishLine) {
@@ -265,3 +267,4 @@
 </script>
 </body>
 </html>
+
