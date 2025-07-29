@@ -25,6 +25,7 @@
     }
     #raceField {
       position: relative;
+      width: 100%;
       height: 500px;
       background: repeating-linear-gradient(
         to right,
@@ -35,6 +36,7 @@
       );
       border: 4px solid white;
       margin-top: 20px;
+      overflow: hidden;
     }
     .runner {
       position: absolute;
@@ -57,6 +59,16 @@
     #totalOdds {
       font-weight: bold;
     }
+    #nextRoundBtn {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -67,7 +79,7 @@
   <p>
     This app uses a <em>weighted random draw system</em> to determine draft order based on user-defined odds. 
     Each round draws a winner using a strict probability method. 
-    The race is then visually animated with dramatic lead changes while ensuring the drawn winner always finishes first.
+    The race is then visually animated with dramatic lead changes while ensuring the drawn winner finishes first.
     After each round, the winner is removed and a new race begins with remaining players.
   </p>
 </div>
@@ -83,6 +95,7 @@
 </div>
 
 <div id="raceField"></div>
+<button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
 
 <div id="results" style="display:none;">
   <h3>Final Draft Order</h3>
@@ -97,7 +110,7 @@
   let originalPlayers = [];
   let remainingPlayers = [];
   let finalOrder = [];
-  const finishLine = 700;
+  const raceField = document.getElementById("raceField");
 
   function generatePlayerInputs() {
     const count = parseInt(document.getElementById('playerCount').value);
@@ -138,6 +151,8 @@
   }
 
   function startNextRace() {
+    document.getElementById('nextRoundBtn').style.display = 'none';
+
     if (originalPlayers.length === 0) {
       const count = parseInt(document.getElementById('playerCount').value);
       originalPlayers = [];
@@ -164,24 +179,21 @@
       row.insertCell().innerText = finalOrder.length;
       row.insertCell().innerText = winner.name;
       remainingPlayers = remainingPlayers.filter(p => p.name !== winner.name);
-      if (remainingPlayers.length > 0) {
-        setTimeout(startNextRace, 1000);
-      } else {
-        document.getElementById('results').style.display = 'block';
-      }
+      document.getElementById('cheer').play();
+      document.getElementById('nextRoundBtn').style.display = 'inline-block';
     });
   }
-  function animateRace(winnerName, callback) {
-    const field = document.getElementById('raceField');
-    field.innerHTML = '';
-    const runners = [];
-    const laneHeight = 60;
-    document.getElementById('whistle').play();
 
-    remainingPlayers.forEach((player, i) => {
-      const runner = document.createElement('div');
-      runner.className = 'runner';
-      runner.style.top = (i * laneHeight + 10) + 'px';
+  function animateRace(winnerName, callback) {
+    document.getElementById('whistle').play();
+    raceField.innerHTML = '';
+    const containerWidth = raceField.clientWidth;
+    const finishLine = containerWidth - 60;
+
+    const runners = remainingPlayers.map((player, index) => {
+      const runnerDiv = document.createElement('div');
+      runnerDiv.className = 'runner';
+      runnerDiv.style.top = (index * 60 + 10) + 'px';
 
       const img = document.createElement('img');
       img.src = 'https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png';
@@ -189,44 +201,45 @@
 
       const label = document.createElement('div');
       label.innerText = player.name;
-      label.style.fontSize = '12px';
       label.style.color = 'white';
+      label.style.fontSize = '12px';
 
-      runner.appendChild(img);
-      runner.appendChild(label);
-      field.appendChild(runner);
-      runners.push({
-        div: runner,
+      runnerDiv.appendChild(img);
+      runnerDiv.appendChild(label);
+      raceField.appendChild(runnerDiv);
+
+      return {
         name: player.name,
+        div: runnerDiv,
         x: 0,
-        speed: Math.random() * 1.5 + 0.5
-      });
+        baseSpeed: Math.random() * 1.5 + 1,
+        fluctuation: Math.random() * 0.5,
+        fatigueFactor: Math.random() * 0.4 + 0.85,
+        positionBoost: player.name === winnerName ? 1.2 : 1
+      };
     });
 
-    const winner = runners.find(r => r.name === winnerName);
-    let finished = false;
+    let tick = 0;
     const interval = setInterval(() => {
-      runners.forEach(r => {
-        if (r === winner) {
-          r.x += r.speed + 1; // slightly faster
-        } else {
-          r.x += r.speed + Math.random() * 0.5;
-        }
-        r.div.style.left = r.x + 'px';
+      tick++;
+      runners.forEach(runner => {
+        let surge = Math.sin((tick + Math.random()) * 0.1) * runner.fluctuation;
+        runner.x += (runner.baseSpeed + surge) * runner.fatigueFactor * runner.positionBoost;
+        runner.div.style.left = runner.x + 'px';
       });
 
-      if (!finished && winner.x >= finishLine) {
+      const winnerRunner = runners.find(r => r.name === winnerName);
+      if (winnerRunner.x >= finishLine) {
         clearInterval(interval);
-        document.getElementById('cheer').play();
+        runner.div.style.left = finishLine + 'px';
         callback();
-        finished = true;
       }
     }, 30);
   }
 
   window.onload = generatePlayerInputs;
 </script>
-
 </body>
 </html>
+
 
