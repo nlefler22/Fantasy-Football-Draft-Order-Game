@@ -256,13 +256,13 @@ function animateRace(winnerName, callback) {
     runners.forEach(runner => {
       const percent = runner.x / finishLine;
 
-      if (percent < 0.75) {
-        runner.x += runner.speed + Math.random(); // all same speed
+      if (percent < 0.8) {
+        runner.x += runner.speed + Math.random(); // same speed for all
       } else {
         if (runner.name === winnerName) {
-          runner.x += (runner.speed * 1.2) + Math.random(); // winner boost
+          runner.x += (runner.speed * 1.1) + Math.random(); // winner boost
         } else {
-          runner.x += runner.speed + Math.random(); // others normal
+          runner.x += runner.speed + Math.random();
         }
       }
 
