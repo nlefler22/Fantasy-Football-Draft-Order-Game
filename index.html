@@ -10,11 +10,9 @@
       color: white;
       padding: 20px;
     }
-
     h2 {
       text-align: center;
     }
-
     .note {
       background: #eef9ff;
       color: #000;
@@ -22,7 +20,6 @@
       border-left: 5px solid #0077cc;
       margin-bottom: 20px;
     }
-
     #raceField {
       position: relative;
       width: 800px;
@@ -38,7 +35,6 @@
       margin: 20px auto;
       overflow: hidden;
     }
-
     .runner {
       position: absolute;
       display: flex;
@@ -46,12 +42,10 @@
       align-items: center;
       width: 60px;
     }
-
     .runner img {
       width: 40px;
       height: 40px;
     }
-
     table, th, td {
       border: 1px solid #444;
       border-collapse: collapse;
@@ -59,7 +53,6 @@
       background: white;
       color: black;
     }
-
     #nextRoundBtn {
       display: none;
       margin: 20px auto;
@@ -70,14 +63,22 @@
       border: none;
       cursor: pointer;
     }
-
     #totalOdds {
       font-weight: bold;
       margin-top: 10px;
     }
-
     #setup {
       text-align: center;
+    }
+    #results {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255,255,255,0.95);
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
     }
   </style>
 </head>
@@ -86,8 +87,8 @@
 <h2>Fantasy Football Draft Race</h2>
 
 <div class="note">
-  <strong>Odds-Based Draft Order:</strong> Each race uses a weighted random draw based on the provided odds. 
-  The selected winner is guaranteed to finish first. Other players may appear to lead briefly but will slow down near the end for a fair and exciting experience.
+  <strong>Each round of the race selects a winner by weighted random selection based on the odds provided.</strong><br>
+  The visual representation of the race is meant for entertainment only but will identify the selected winner.
 </div>
 
 <div id="setup">
@@ -103,8 +104,8 @@
 <div id="raceField"></div>
 <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
 
-<div id="results" style="display:none;">
-  <h3>Final Draft Order</h3>
+<div id="results">
+  <h3>Draft Order</h3>
   <table id="resultTable">
     <tr><th>Draft Pick</th><th>Player</th></tr>
   </table>
@@ -174,24 +175,37 @@ function startNextRace() {
     document.getElementById('resultTable').innerHTML = '<tr><th>Draft Pick</th><th>Player</th></tr>';
   }
 
-  if (remainingPlayers.length === 0) {
-    document.getElementById('results').style.display = 'block';
+  if (remainingPlayers.length === 2) {
+    const winner = weightedDraw(remainingPlayers);
+    const loser = remainingPlayers.find(p => p.name !== winner.name);
+    animateRace(winner.name, () => {
+      finalOrder.push(winner.name);
+      finalOrder.push(loser.name);
+      updateResultTable();
+      document.getElementById('cheer').play();
+      document.getElementById('results').style.display = 'block';
+      remainingPlayers = [];
+    });
     return;
   }
 
   const winner = weightedDraw(remainingPlayers);
   animateRace(winner.name, () => {
     finalOrder.push(winner.name);
-    const row = document.getElementById('resultTable').insertRow();
-    row.insertCell().innerText = finalOrder.length;
-    row.insertCell().innerText = winner.name;
     remainingPlayers = remainingPlayers.filter(p => p.name !== winner.name);
+    updateResultTable();
     document.getElementById('cheer').play();
-    if (remainingPlayers.length > 0) {
-      document.getElementById('nextRoundBtn').style.display = 'inline-block';
-    } else {
-      document.getElementById('results').style.display = 'block';
-    }
+    document.getElementById('nextRoundBtn').style.display = 'inline-block';
+  });
+}
+
+function updateResultTable() {
+  const table = document.getElementById('resultTable');
+  table.innerHTML = '<tr><th>Draft Pick</th><th>Player</th></tr>';
+  finalOrder.forEach((name, i) => {
+    const row = table.insertRow();
+    row.insertCell().innerText = i + 1;
+    row.insertCell().innerText = name;
   });
 }
 
@@ -222,33 +236,28 @@ function animateRace(winnerName, callback) {
       name: player.name,
       div: runnerDiv,
       x: 0,
-      baseSpeed: Math.random() * 1.5 + 0.5
+      speed: 2
     };
   });
 
   const winnerRunner = runners.find(r => r.name === winnerName);
 
-  let tick = 0;
   const interval = setInterval(() => {
-    tick++;
-
     runners.forEach(runner => {
-      let percent = runner.x / finishLine;
-      let speed = runner.baseSpeed;
-      const rand = Math.random() * 0.5;
+      const percent = runner.x / finishLine;
 
-      if (runner.name === winnerName) {
-        if (percent < 0.2) speed *= 0.4;
-        else speed *= 2.5;
+      if (percent < 0.5) {
+        runner.x += runner.speed + Math.random(); // All same speed zone
       } else {
-        if (percent < 0.5) speed *= 1.0;
-        else speed *= 0.4;
+        if (runner.name === winnerName) {
+          runner.x += runner.speed * 1.5 + Math.random(); // Winner speeds up
+        } else {
+          runner.x += runner.speed + Math.random(); // Others stay normal
+        }
       }
 
-      runner.x += speed + rand;
-
-      if (runner.name !== winnerName && runner.x >= finishLine * 0.96) {
-        runner.x = finishLine * 0.96;
+      if (runner.name !== winnerName && runner.x >= finishLine * 0.99) {
+        runner.x = finishLine * 0.99;
       }
 
       runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
