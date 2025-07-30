@@ -82,6 +82,16 @@
   </style>
 </head>
 <body>
+<!-- Background music player -->
+<audio id="backgroundMusic" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<!-- Start music button -->
+<div style="text-align:center; margin-bottom: 10px;">
+  <button onclick="document.getElementById('backgroundMusic').play()" style="padding:10px 20px; font-size:16px;">🎵 Start Music</button>
+</div>
 
 <h2>Fantasy Football Draft Race</h2>
 
