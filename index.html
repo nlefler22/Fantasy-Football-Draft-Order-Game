@@ -246,11 +246,11 @@ function animateRace(winnerName, callback) {
     runners.forEach(runner => {
       const percent = runner.x / finishLine;
 
-      if (percent < 0.5) {
+      if (percent < 0.75) {
         runner.x += runner.speed + Math.random(); // All same speed zone
       } else {
         if (runner.name === winnerName) {
-          runner.x += runner.speed * 1.5 + Math.random(); // Winner speeds up
+          runner.x += runner.speed * 1.2 + Math.random(); // Winner speeds up
         } else {
           runner.x += runner.speed + Math.random(); // Others stay normal
         }
