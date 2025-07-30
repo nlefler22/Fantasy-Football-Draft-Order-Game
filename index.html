@@ -113,3 +113,157 @@
 <audio id="whistle" src="https://www.soundjay.com/button/sounds/beep-07.mp3" preload="auto"></audio>
 <audio id="cheer" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
 
+<script>
+let originalPlayers = [];
+let remainingPlayers = [];
+let finalOrder = [];
+const raceField = document.getElementById("raceField");
+
+function generatePlayerInputs() {
+  const count = parseInt(document.getElementById('playerCount').value);
+  const form = document.getElementById('playerForm');
+  form.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    form.innerHTML += `
+      <div>
+        <label>Player ${i + 1} Name: <input type="text" id="name${i}" value="Player ${i + 1}"></label>
+        <label>Odds (%): <input type="number" id="odds${i}" step="0.1" value="${(100 / count).toFixed(1)}" oninput="updateTotalOdds()"></label>
+      </div>
+    `;
+  }
+  updateTotalOdds();
+}
+
+function updateTotalOdds() {
+  let total = 0;
+  const count = parseInt(document.getElementById('playerCount').value);
+  for (let i = 0; i < count; i++) {
+    const val = parseFloat(document.getElementById(`odds${i}`).value);
+    total += isNaN(val) ? 0 : val;
+  }
+  const totalOddsElem = document.getElementById('totalOdds');
+  totalOddsElem.innerText = `Total Odds: ${total.toFixed(1)}%`;
+  totalOddsElem.style.color = (Math.abs(total - 100) < 0.1) ? 'green' : 'red';
+}
+
+function weightedDraw(players) {
+  const total = players.reduce((sum, p) => sum + p.odds, 0);
+  const rand = Math.random() * total;
+  let running = 0;
+  for (let p of players) {
+    running += p.odds;
+    if (rand < running) return p;
+  }
+  return players[players.length - 1];
+}
+
+function startNextRace() {
+  document.getElementById('nextRoundBtn').style.display = 'none';
+
+  if (originalPlayers.length === 0) {
+    const count = parseInt(document.getElementById('playerCount').value);
+    originalPlayers = [];
+    for (let i = 0; i < count; i++) {
+      const name = document.getElementById(`name${i}`).value;
+      const odds = parseFloat(document.getElementById(`odds${i}`).value);
+      originalPlayers.push({ name, odds });
+    }
+    remainingPlayers = [...originalPlayers];
+    finalOrder = [];
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('resultTable').innerHTML = '<tr><th>Draft Pick</th><th>Player</th></tr>';
+  }
+
+  if (remainingPlayers.length === 0) {
+    document.getElementById('results').style.display = 'block';
+    return;
+  }
+
+  const winner = weightedDraw(remainingPlayers);
+  animateRace(winner.name, () => {
+    finalOrder.push(winner.name);
+    const row = document.getElementById('resultTable').insertRow();
+    row.insertCell().innerText = finalOrder.length;
+    row.insertCell().innerText = winner.name;
+    remainingPlayers = remainingPlayers.filter(p => p.name !== winner.name);
+    document.getElementById('cheer').play();
+    if (remainingPlayers.length > 0) {
+      document.getElementById('nextRoundBtn').style.display = 'inline-block';
+    } else {
+      document.getElementById('results').style.display = 'block';
+    }
+  });
+}
+
+function animateRace(winnerName, callback) {
+  document.getElementById('whistle').play();
+  raceField.innerHTML = '';
+  const finishLine = 800 - 60;
+
+  const runners = remainingPlayers.map((player, index) => {
+    const runnerDiv = document.createElement('div');
+    runnerDiv.className = 'runner';
+    runnerDiv.style.top = (index * 60 + 10) + 'px';
+
+    const img = document.createElement('img');
+    img.src = 'https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png';
+    img.alt = player.name;
+
+    const label = document.createElement('div');
+    label.innerText = player.name;
+    label.style.color = 'white';
+    label.style.fontSize = '12px';
+
+    runnerDiv.appendChild(img);
+    runnerDiv.appendChild(label);
+    raceField.appendChild(runnerDiv);
+
+    return {
+      name: player.name,
+      div: runnerDiv,
+      x: 0,
+      baseSpeed: Math.random() * 1.5 + 0.5
+    };
+  });
+
+  const winnerRunner = runners.find(r => r.name === winnerName);
+
+  let tick = 0;
+  const interval = setInterval(() => {
+    tick++;
+
+    runners.forEach(runner => {
+      let percent = runner.x / finishLine;
+      let speed = runner.baseSpeed;
+      const rand = Math.random() * 0.5;
+
+      if (runner.name === winnerName) {
+        if (percent < 0.2) speed *= 0.4;
+        else speed *= 2.5;
+      } else {
+        if (percent < 0.5) speed *= 1.0;
+        else speed *= 0.4;
+      }
+
+      runner.x += speed + rand;
+
+      if (runner.name !== winnerName && runner.x >= finishLine * 0.96) {
+        runner.x = finishLine * 0.96;
+      }
+
+      runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
+    });
+
+    if (winnerRunner.x >= finishLine) {
+      clearInterval(interval);
+      winnerRunner.div.style.left = finishLine + 'px';
+      callback();
+    }
+  }, 30);
+}
+
+window.onload = generatePlayerInputs;
+</script>
+
+</body>
+</html>
