@@ -53,14 +53,21 @@
       background: white;
       color: black;
     }
-    #nextRoundBtn {
+    #nextRoundContainer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       display: none;
-      margin: 20px auto;
-      padding: 10px 20px;
-      font-size: 16px;
+      z-index: 10;
+    }
+    #nextRoundBtn {
+      padding: 10px 25px;
+      font-size: 20px;
       background-color: #0077cc;
       color: white;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
     #totalOdds {
@@ -101,8 +108,11 @@
   <button onclick="startNextRace()">Start Race</button>
 </div>
 
-<div id="raceField"></div>
-<button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
+<div id="raceField">
+  <div id="nextRoundContainer">
+    <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
+  </div>
+</div>
 
 <div id="results">
   <h3>Draft Order</h3>
@@ -159,7 +169,7 @@ function weightedDraw(players) {
 }
 
 function startNextRace() {
-  document.getElementById('nextRoundBtn').style.display = 'none';
+  document.getElementById('nextRoundContainer').style.display = 'none';
 
   if (originalPlayers.length === 0) {
     const count = parseInt(document.getElementById('playerCount').value);
@@ -195,7 +205,7 @@ function startNextRace() {
     remainingPlayers = remainingPlayers.filter(p => p.name !== winner.name);
     updateResultTable();
     document.getElementById('cheer').play();
-    document.getElementById('nextRoundBtn').style.display = 'inline-block';
+    document.getElementById('nextRoundContainer').style.display = 'block';
   });
 }
 
@@ -211,7 +221,7 @@ function updateResultTable() {
 
 function animateRace(winnerName, callback) {
   document.getElementById('whistle').play();
-  raceField.innerHTML = '';
+  raceField.innerHTML = '<div id="nextRoundContainer"><button id="nextRoundBtn" onclick="startNextRace()">Next Round</button></div>';
   const finishLine = 800 - 60;
 
   const runners = remainingPlayers.map((player, index) => {
@@ -247,12 +257,12 @@ function animateRace(winnerName, callback) {
       const percent = runner.x / finishLine;
 
       if (percent < 0.75) {
-        runner.x += runner.speed + Math.random(); // All same speed zone
+        runner.x += runner.speed + Math.random(); // all same speed
       } else {
         if (runner.name === winnerName) {
-          runner.x += runner.speed * 1.2 + Math.random(); // Winner speeds up
+          runner.x += (runner.speed * 1.2) + Math.random(); // winner boost
         } else {
-          runner.x += runner.speed + Math.random(); // Others stay normal
+          runner.x += runner.speed + Math.random(); // others normal
         }
       }
 
