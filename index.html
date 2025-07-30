@@ -250,7 +250,7 @@ function animateRace(winnerName, callback) {
     runners.forEach(runner => {
    const percent = runner.x / finishLine;
 
-if (percent < 0.3) {
+if (percent < 0.4) {
   // Zone 1
   runner.x += (
     runner.name === winnerName ? 1.5 :
