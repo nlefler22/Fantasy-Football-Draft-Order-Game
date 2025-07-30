@@ -251,9 +251,9 @@ function animateRace(winnerName, callback) {
       const percent = runner.x / finishLine;
 
       if (percent < 0.7) {
-        runner.x += (runner.name === winnerName ? 1.8 : (groupA.includes(runner) ? 2 : 2));
+        runner.x += (runner.name === winnerName ? 1.5 : (groupA.includes(runner) ? 2 : 1.5));
       } else {
-        runner.x += (runner.name === winnerName ? 2.2 : (groupA.includes(runner) ? 1.5 : 1));
+        runner.x += (runner.name === winnerName ? 2.2 : (groupA.includes(runner) ? 1.5 : 2.0));
       }
 
       if (runner.name !== winnerName && runner.x >= finishLine) {
