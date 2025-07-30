@@ -13,7 +13,7 @@
     h2 {
       text-align: center;
     }
-    .note, .instructions {
+    .instructions, .note {
       background: #eef9ff;
       color: #000;
       padding: 10px;
@@ -55,7 +55,7 @@
       display: none;
       z-index: 10;
     }
-    #nextRoundBtn, #startOverBtn {
+    #nextRoundBtn {
       padding: 10px 25px;
       font-size: 20px;
       background-color: #0077cc;
@@ -63,25 +63,28 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin: 10px;
-    }
-    #setup {
-      text-align: center;
-    }
-    #winnersTable {
-      margin: 0 auto;
-      margin-top: 20px;
-      display: none;
     }
     #totalOdds {
       font-weight: bold;
       margin-top: 10px;
+    }
+    #setup {
+      text-align: center;
+    }
+    #results {
+      background-color: rgba(255,255,255,0.95);
+      padding: 20px;
+      border-radius: 10px;
+      color: black;
+      width: fit-content;
+      margin: 10px auto;
     }
   </style>
 </head>
 <body>
 
 <h2>Fantasy Football Draft Race</h2>
+
 <div class="instructions">
   <strong>Instructions:</strong> 1/ Select the number of players, 2/ Input your custom odds, 3/ Start the race. After each race, click "Next Round" to continue determining 2nd, 3rd, etc... At the end of the last round, the complete draft order will be determined.
 </div>
@@ -97,7 +100,6 @@
   <form id="playerForm"></form>
   <div id="totalOdds">Total Odds: 0%</div>
   <button onclick="startNextRace()">Start Race</button>
-  <button id="startOverBtn" onclick="startOver()">Start Over</button>
 </div>
 
 <div id="raceField">
@@ -106,15 +108,21 @@
   </div>
 </div>
 
-<table id="winnersTable">
-  <thead><tr><th>Draft Pick</th><th>Player</th></tr></thead>
-  <tbody id="winnersBody"></tbody>
-</table>
+<div id="results">
+  <h3>Winners</h3>
+  <table id="resultTable">
+    <tr><th>Draft Pick</th><th>Player</th></tr>
+  </table>
+</div>
+
+<audio id="whistle" src="https://www.soundjay.com/button/sounds/beep-07.mp3" preload="auto"></audio>
+<audio id="cheer" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
 
 <script>
 let originalPlayers = [];
 let remainingPlayers = [];
 let finalOrder = [];
+const raceField = document.getElementById("raceField");
 
 function generatePlayerInputs() {
   const count = parseInt(document.getElementById('playerCount').value);
@@ -154,85 +162,110 @@ function weightedDraw(players) {
   return players[players.length - 1];
 }
 
-function startOver() {
-  remainingPlayers = [...originalPlayers];
-  finalOrder = [];
-  document.getElementById("winnersTable").style.display = "none";
-  document.getElementById("winnersBody").innerHTML = "";
-  document.getElementById("nextRoundContainer").style.display = "none";
-}
-
 function startNextRace() {
-  document.getElementById("nextRoundContainer").style.display = "none";
+  document.getElementById('nextRoundContainer').style.display = 'none';
 
   if (originalPlayers.length === 0) {
     const count = parseInt(document.getElementById('playerCount').value);
+    originalPlayers = [];
     for (let i = 0; i < count; i++) {
       const name = document.getElementById(`name${i}`).value;
       const odds = parseFloat(document.getElementById(`odds${i}`).value);
       originalPlayers.push({ name, odds });
     }
     remainingPlayers = [...originalPlayers];
+    finalOrder = [];
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('resultTable').innerHTML = '<tr><th>Draft Pick</th><th>Player</th></tr>';
+  }
+
+  if (remainingPlayers.length === 2) {
+    const winner = weightedDraw(remainingPlayers);
+    const loser = remainingPlayers.find(p => p.name !== winner.name);
+    animateRace(winner.name, () => {
+      finalOrder.push(winner.name);
+      finalOrder.push(loser.name);
+      updateResultTable();
+      document.getElementById('cheer').play();
+      remainingPlayers = [];
+    });
+    return;
   }
 
   const winner = weightedDraw(remainingPlayers);
   animateRace(winner.name, () => {
     finalOrder.push(winner.name);
     remainingPlayers = remainingPlayers.filter(p => p.name !== winner.name);
-    updateWinnersTable();
-    if (remainingPlayers.length > 0) {
-      document.getElementById("nextRoundContainer").style.display = "block";
-    }
+    updateResultTable();
+    document.getElementById('cheer').play();
+    document.getElementById('nextRoundContainer').style.display = 'block';
   });
 }
 
-function updateWinnersTable() {
-  const table = document.getElementById("winnersTable");
-  const body = document.getElementById("winnersBody");
-  body.innerHTML = "";
-  finalOrder.forEach((name, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${index + 1}</td><td>${name}</td>`;
-    body.appendChild(row);
+function updateResultTable() {
+  const table = document.getElementById('resultTable');
+  table.innerHTML = '<tr><th>Draft Pick</th><th>Player</th></tr>';
+  finalOrder.forEach((name, i) => {
+    const row = table.insertRow();
+    row.insertCell().innerText = i + 1;
+    row.insertCell().innerText = name;
   });
-  table.style.display = "table";
 }
 
 function animateRace(winnerName, callback) {
-  const raceField = document.getElementById("raceField");
+  document.getElementById('whistle').play();
   raceField.innerHTML = '<div id="nextRoundContainer"><button id="nextRoundBtn" onclick="startNextRace()">Next Round</button></div>';
+  const finishLine = 740;
 
-  const finishLine = 800 - 60;
-  const runners = remainingPlayers.map((p, i) => {
-    const div = document.createElement("div");
-    div.className = "runner";
-    div.style.top = `${i * 60 + 10}px`;
-    div.innerHTML = `<img src="https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png"><div>${p.name}</div>`;
-    raceField.appendChild(div);
-    return { name: p.name, div, x: 0 };
+  const runners = remainingPlayers.map((player, index) => {
+    const runnerDiv = document.createElement('div');
+    runnerDiv.className = 'runner';
+    runnerDiv.style.top = (index * 60 + 10) + 'px';
+
+    const img = document.createElement('img');
+    img.src = 'https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png';
+    img.alt = player.name;
+
+    const label = document.createElement('div');
+    label.innerText = player.name;
+    label.style.color = 'white';
+    label.style.fontSize = '12px';
+
+    runnerDiv.appendChild(img);
+    runnerDiv.appendChild(label);
+    raceField.appendChild(runnerDiv);
+
+    return {
+      name: player.name,
+      div: runnerDiv,
+      x: 0
+    };
   });
 
-  const winner = runners.find(r => r.name === winnerName);
-  const others = runners.filter(r => r.name !== winnerName);
-  const groupA = others.slice(0, Math.ceil(others.length / 2));
-  const groupB = others.slice(Math.ceil(others.length / 2));
+  const winnerRunner = runners.find(r => r.name === winnerName);
+  const groupA = runners.filter(r => r.name !== winnerName).slice(0, Math.floor((runners.length - 1) / 2));
+  const groupB = runners.filter(r => r.name !== winnerName).slice(Math.floor((runners.length - 1) / 2));
 
   const interval = setInterval(() => {
-    runners.forEach(r => {
-      const percent = r.x / finishLine;
-      if (r.name === winner.name) {
-        r.x += percent < 0.7 ? 2.5 + Math.random() : 4 + Math.random();
-      } else if (groupA.includes(r)) {
-        r.x += percent < 0.7 ? 2 + Math.random() : 1 + Math.random();
+    runners.forEach(runner => {
+      const percent = runner.x / finishLine;
+
+      if (percent < 0.7) {
+        runner.x += (runner.name === winnerName ? 2 : (groupA.includes(runner) ? 2 : 2));
       } else {
-        r.x += percent < 0.7 ? 2.2 + Math.random() : 1.5 + Math.random();
+        runner.x += (runner.name === winnerName ? 3 : (groupA.includes(runner) ? 1.5 : 1));
       }
-      r.div.style.left = Math.min(r.x, finishLine) + 'px';
+
+      if (runner.name !== winnerName && runner.x >= finishLine) {
+        runner.x = finishLine - 5;
+      }
+
+      runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
     });
 
-    if (winner.x >= finishLine) {
+    if (winnerRunner.x >= finishLine) {
       clearInterval(interval);
-      winner.div.style.left = finishLine + 'px';
+      winnerRunner.div.style.left = finishLine + 'px';
       callback();
     }
   }, 30);
