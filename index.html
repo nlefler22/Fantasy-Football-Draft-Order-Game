@@ -2,14 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fantasy Football Draft Race</title>
   <style>
     body {
       font-family: sans-serif;
       background-color: #1e3d1a;
       color: white;
-      margin: 0;
       padding: 20px;
     }
     h2 {
@@ -20,23 +18,13 @@
       color: #000;
       padding: 10px;
       border-left: 5px solid #0077cc;
-      margin: 10px auto;
-      max-width: 900px;
-      cursor: pointer;
-    }
-    .collapsible-text {
-      display: none;
-      font-size: 0.9em;
-      margin-top: 5px;
+      margin-bottom: 10px;
     }
     #raceField {
       position: relative;
-      width: 100%;
-      max-width: 900px;
+      width: 800px;
       height: 500px;
-      background-image: url('https://i.postimg.cc/HsjfycJx/Field-Only-High-Res.png');
-      background-size: cover;
-      background-position: center;
+      background: repeating-linear-gradient(to right, #2e8b57, #2e8b57 50px, #228b22 50px, #228b22 100px);
       border: 4px solid white;
       margin: 20px auto;
       overflow: hidden;
@@ -46,38 +34,41 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 80px;
-      animation: bobble 0.4s infinite;
-    }
-    @keyframes bobble {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-      100% { transform: translateY(0); }
-    }
-    .runner img {
       width: 60px;
     }
-    #ffdLogo {
+    .runner img {
+      width: 40px;
+      height: 40px;
+    }
+    table, th, td {
+      border: 1px solid #444;
+      border-collapse: collapse;
+      padding: 5px 10px;
+      background: white;
+      color: black;
+    }
+    #nextRoundContainer {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 1;
-      height: 120px;
-      pointer-events: none;
+      display: none;
+      z-index: 10;
     }
-    .popup-btn {
-      background: none;
+    #nextRoundBtn {
+      padding: 10px 25px;
+      font-size: 20px;
+      background-color: #0077cc;
+      color: white;
       border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
-    #nextRoundContainer, #winnerOverlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-      display: none;
+    #totalOdds {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    #setup {
       text-align: center;
     }
     #results {
@@ -88,70 +79,27 @@
       width: fit-content;
       margin: 10px auto;
     }
-    table, th, td {
-      border: 1px solid #444;
-      border-collapse: collapse;
-      padding: 5px 10px;
-      background: white;
-      color: black;
-    }
-    #setup {
-      text-align: center;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .player-input {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 5px 0;
-    }
-    input[type="text"], input[type="number"] {
-      flex: 1;
-      padding: 6px;
-      font-size: 1em;
-    }
-    .button-bar {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin: 10px 0;
-    }
-    .control-btn img {
-      height: 50px;
-    }
-    @media (max-width: 600px) {
-      .runner img { width: 40px; }
-      .player-input { flex-direction: column; }
-    }
   </style>
 </head>
 <body>
-
+<!-- Background music player -->
 <audio id="backgroundMusic" loop>
   <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
 </audio>
 
-<div class="button-bar">
-  <button class="control-btn" onclick="toggleMusic()">
-    <img src="https://i.postimg.cc/xcj74h1K/Start-Stop-Music.png" alt="Music Control">
-  </button>
-  <button class="control-btn" onclick="startNextRace()">
-    <img src="https://i.postimg.cc/z3F6p88z/startrace2.png" alt="Start Race">
-  </button>
+<!-- Start music button -->
+<div style="text-align:center; margin-bottom: 10px;">
+  <button onclick="document.getElementById('backgroundMusic').play()" style="padding:10px 20px; font-size:16px;">🎵 Start Music</button>
 </div>
 
 <h2>Fantasy Football Draft Race</h2>
 
-<div class="instructions" onclick="toggleCollapse('instText')">
-  <strong>Instructions</strong>
-  <div id="instText" class="collapsible-text">1/ Select number of players. 2/ Enter names and odds. 3/ Click start race. After each race, click "Next Round" to continue until all placements are set.</div>
+<div class="instructions">
+  <strong>Instructions:</strong> 1/ Select the number of players, 2/ Input your custom odds, 3/ Start the race. After each race, click "Next Round" to continue determining 2nd, 3rd, etc... At the end of the last round, the complete draft order will be determined.
 </div>
-<div class="note" onclick="toggleCollapse('methText')">
-  <strong>Methodology</strong>
-  <div id="methText" class="collapsible-text">Winners are selected by weighted randomness based on odds. After each round, the winner is removed and remaining players continue.</div>
+<div class="note">
+  <strong>Methodology:</strong> The winner of each round is determined by weighted random selection based purely on the odds provided. After each round, the previous winner is removed and the selection is made again with the remaining players, based on the updated odds.
 </div>
 
 <div id="setup">
@@ -161,15 +109,12 @@
   <button onclick="generatePlayerInputs()">Set Players</button>
   <form id="playerForm"></form>
   <div id="totalOdds">Total Odds: 0%</div>
+  <button onclick="startNextRace()">Start Race</button>
 </div>
 
 <div id="raceField">
-  <img id="ffdLogo" src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo">
-  <div id="winnerOverlay"></div>
   <div id="nextRoundContainer">
-    <button class="popup-btn" onclick="startNextRace()">
-      <img src="https://i.postimg.cc/tZ0NGZdK/nextround1.png" alt="Next Round" style="height:50px;">
-    </button>
+    <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
   </div>
 </div>
 
@@ -184,16 +129,9 @@
 <audio id="cheer" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
 
 <script>
-function toggleMusic() {
-  const music = document.getElementById("backgroundMusic");
-  music.paused ? music.play() : music.pause();
-}
-function toggleCollapse(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === 'block' ? 'none' : 'block';
-}
-
-let originalPlayers = [], remainingPlayers = [], finalOrder = [];
+let originalPlayers = [];
+let remainingPlayers = [];
+let finalOrder = [];
 const raceField = document.getElementById("raceField");
 
 function generatePlayerInputs() {
@@ -201,12 +139,12 @@ function generatePlayerInputs() {
   const form = document.getElementById('playerForm');
   form.innerHTML = '';
   for (let i = 0; i < count; i++) {
-    form.innerHTML += `
-      <div class="player-input">
-        <input type="text" id="name${i}" value="Player ${i + 1}" placeholder="Player Name">
-        <input type="number" id="odds${i}" step="0.1" value="${(100 / count).toFixed(1)}" oninput="updateTotalOdds()" placeholder="Odds %">
+    form.innerHTML += 
+      <div>
+        <label>Player ${i + 1} Name: <input type="text" id="name${i}" value="Player ${i + 1}"></label>
+        <label>Odds (%): <input type="number" id="odds${i}" step="0.1" value="${(100 / count).toFixed(1)}" oninput="updateTotalOdds()"></label>
       </div>
-    `;
+    ;
   }
   updateTotalOdds();
 }
@@ -215,12 +153,12 @@ function updateTotalOdds() {
   let total = 0;
   const count = parseInt(document.getElementById('playerCount').value);
   for (let i = 0; i < count; i++) {
-    const val = parseFloat(document.getElementById(`odds${i}`).value);
+    const val = parseFloat(document.getElementById(odds${i}).value);
     total += isNaN(val) ? 0 : val;
   }
   const totalOddsElem = document.getElementById('totalOdds');
-  totalOddsElem.innerText = `Total Odds: ${total.toFixed(1)}%`;
-  totalOddsElem.style.color = (Math.abs(total - 100) < 0.1) ? 'lightgreen' : 'red';
+  totalOddsElem.innerText = Total Odds: ${total.toFixed(1)}%;
+  totalOddsElem.style.color = (Math.abs(total - 100) < 0.1) ? 'green' : 'red';
 }
 
 function weightedDraw(players) {
@@ -234,7 +172,139 @@ function weightedDraw(players) {
   return players[players.length - 1];
 }
 
-// Add the animation and race logic script from working version below
+function startNextRace() {
+  document.getElementById('nextRoundContainer').style.display = 'none';
+
+  if (originalPlayers.length === 0) {
+    const count = parseInt(document.getElementById('playerCount').value);
+    originalPlayers = [];
+    for (let i = 0; i < count; i++) {
+      const name = document.getElementById(name${i}).value;
+      const odds = parseFloat(document.getElementById(odds${i}).value);
+      originalPlayers.push({ name, odds });
+    }
+    remainingPlayers = [...originalPlayers];
+    finalOrder = [];
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('resultTable').innerHTML = '<tr><th>Draft Pick</th><th>Player</th></tr>';
+  }
+
+  if (remainingPlayers.length === 2) {
+    const winner = weightedDraw(remainingPlayers);
+    const loser = remainingPlayers.find(p => p.name !== winner.name);
+    animateRace(winner.name, () => {
+      finalOrder.push(winner.name);
+      finalOrder.push(loser.name);
+      updateResultTable();
+      document.getElementById('cheer').play();
+      remainingPlayers = [];
+    });
+    return;
+  }
+
+  const winner = weightedDraw(remainingPlayers);
+  animateRace(winner.name, () => {
+    finalOrder.push(winner.name);
+    remainingPlayers = remainingPlayers.filter(p => p.name !== winner.name);
+    updateResultTable();
+    document.getElementById('cheer').play();
+    document.getElementById('nextRoundContainer').style.display = 'block';
+  });
+}
+
+function updateResultTable() {
+  const table = document.getElementById('resultTable');
+  table.innerHTML = '<tr><th>Draft Pick</th><th>Player</th></tr>';
+  finalOrder.forEach((name, i) => {
+    const row = table.insertRow();
+    row.insertCell().innerText = i + 1;
+    row.insertCell().innerText = name;
+  });
+}
+
+function animateRace(winnerName, callback) {
+  document.getElementById('whistle').play();
+  raceField.innerHTML = '<div id="nextRoundContainer"><button id="nextRoundBtn" onclick="startNextRace()">Next Round</button></div>';
+  const finishLine = 800 - 60;
+
+  // Setup runners
+  const runners = remainingPlayers.map((player, index) => {
+    const runnerDiv = document.createElement('div');
+    runnerDiv.className = 'runner';
+    runnerDiv.style.top = (index * 60 + 10) + 'px';
+
+    const img = document.createElement('img');
+    img.src = 'https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png';
+    img.alt = player.name;
+
+    const label = document.createElement('div');
+    label.innerText = player.name;
+    label.style.color = 'white';
+    label.style.fontSize = '12px';
+
+    runnerDiv.appendChild(img);
+    runnerDiv.appendChild(label);
+    raceField.appendChild(runnerDiv);
+
+    return {
+      name: player.name,
+      div: runnerDiv,
+      x: 0
+    };
+  });
+
+  const winnerRunner = runners.find(r => r.name === winnerName);
+  const losers = runners.filter(r => r.name !== winnerName);
+
+  // Split losers into GroupA and GroupB
+  const mid = Math.ceil(losers.length / 2);
+  const groupA = losers.slice(0, mid);
+  const groupB = losers.slice(mid);
+
+  // Animate
+  const interval = setInterval(() => {
+    runners.forEach(runner => {
+      const percent = runner.x / finishLine;
+      let speed = 0;
+
+      if (percent < 0.3) {
+        // Zone 1
+        speed = (runner.name === winnerName)
+          ? 1.9
+          : (groupA.includes(runner) ? 2.0 : 2.1);
+      } else if (percent < 0.6) {
+        // Zone 2
+        speed = (runner.name === winnerName)
+          ? 1.6
+          : (groupA.includes(runner) ? 1.6 : 1.4);
+      } else {
+        // Zone 3
+        speed = (runner.name === winnerName)
+          ? 2.0
+          : (groupA.includes(runner) ? 1.8 : 1.9);
+      }
+
+      // Random variation for realism
+      runner.x += speed + Math.random() * 0.3;
+
+      // Prevent non-winners from finishing early
+      if (runner.name !== winnerName && runner.x >= finishLine * 0.99) {
+        runner.x = finishLine * 0.99;
+      }
+
+      runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
+    });
+
+    if (winnerRunner.x >= finishLine) {
+      clearInterval(interval);
+      winnerRunner.div.style.left = finishLine + 'px';
+      callback();
+    }
+  }, 30);
+}
+
+window.onload = generatePlayerInputs;
 </script>
+
 </body>
-</html>
+</html> 
