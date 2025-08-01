@@ -2,205 +2,246 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fantasy Football Draft Pick Race</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy Football Draft Race</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #103d1c;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1e3d1a;
       color: white;
       margin: 0;
       padding: 0;
     }
-    header {
-      background-color: #103d1c;
+    h2 {
       text-align: center;
-      padding: 20px;
-      font-size: 1.6rem;
-      font-weight: bold;
+      margin-top: 20px;
     }
     .container {
-      padding: 20px;
-      max-width: 700px;
+      max-width: 800px;
       margin: auto;
+      padding: 20px;
     }
     .collapsible {
-      background-color: #195a2b;
+      background-color: #2a5934;
       color: white;
       cursor: pointer;
-      padding: 12px;
-      width: 100%;
+      padding: 14px;
+      border: none;
       text-align: left;
       outline: none;
-      border: none;
-      font-size: 16px;
-      border-radius: 5px;
-      margin-bottom: 10px;
+      font-size: 18px;
+      width: 100%;
+      margin-bottom: 5px;
     }
     .content {
       padding: 10px;
       display: none;
-      overflow: hidden;
-      background-color: #ffffff11;
-      border-radius: 5px;
-      margin-bottom: 10px;
+      background-color: #f9f9f9;
+      color: black;
+      border-left: 5px solid #0077cc;
+      margin-bottom: 15px;
     }
-    label, input {
-      display: inline-block;
-      margin: 5px 0;
+    #setup {
+      background-color: #fff;
+      color: #000;
+      padding: 20px;
+      border-radius: 8px;
     }
-    input[type="text"], input[type="number"] {
-      width: calc(50% - 15px);
-      padding: 10px;
-      margin-right: 10px;
-      border-radius: 5px;
+    #setup input[type="number"], #setup input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      margin: 5px;
+    }
+    .player-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .button-group {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+    }
+    .action-button {
+      background-color: #f4b400;
       border: none;
-      font-size: 14px;
-    }
-    .inputs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    .button-img {
-      width: 100%;
-      max-width: 300px;
+      padding: 15px 25px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
       cursor: pointer;
     }
     #raceField {
       position: relative;
-      background-image: url('https://i.postimg.cc/HsjfycJx/Field-Only-High-Res.png');
-      background-size: cover;
-      background-position: center;
-      border: 3px solid white;
-      border-radius: 10px;
+      background: url("https://i.postimg.cc/HsjfycJx/Field-Only-High-Res.png") center/cover no-repeat;
+      height: 400px;
       margin-top: 20px;
-      width: 100%;
-      aspect-ratio: 16/9;
       overflow: hidden;
+      border: 4px solid white;
     }
     #logoOverlay {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 100px;
-      height: auto;
+      z-index: 1;
+      pointer-events: none;
+      width: 120px;
+    }
+    .runner {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       z-index: 2;
     }
-    .results {
-      margin-top: 20px;
-      background-color: #ffffff15;
-      padding: 10px;
-      border-radius: 10px;
+    .runner img {
+      width: 40px;
     }
     table {
       width: 100%;
+      margin-top: 20px;
       border-collapse: collapse;
-      color: white;
+      background: white;
+      color: black;
     }
     th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid white;
+      border: 1px solid #ccc;
+      padding: 10px;
     }
-    @media (max-width: 600px) {
-      input[type="text"], input[type="number"] {
-        width: 100%;
-      }
-      .controls {
+    @media screen and (max-width: 600px) {
+      .player-row {
         flex-direction: column;
-        align-items: center;
       }
     }
   </style>
 </head>
 <body>
-  <header>FANTASY FOOTBALL DRAFT PICK</header>
   <div class="container">
+    <h2>Fantasy Football Draft Pick</h2>
 
     <button class="collapsible">Instructions</button>
     <div class="content">
-      <p>Select number of players, assign odds (must total 100%), then click START RACE. After each round, the winner is removed and remaining players compete again. Continue until all draft picks are selected.</p>
+      <p>Select the number of players, assign each a percentage chance, and start the race to determine draft order!</p>
     </div>
 
     <button class="collapsible">Methodology</button>
     <div class="content">
-      <p>Winners are determined by weighted random selection based on the provided odds. The race is animated, and the odds affect the probability of winning each round.</p>
+      <p>The winner of each round is determined by weighted random selection based purely on the odds provided. After each round, the winner is removed and the process continues.</p>
     </div>
 
-    <label for="playerCount">Number of players</label>
-    <input type="number" id="playerCount" min="2" max="12" value="6" onchange="generateInputs()">
-    <div id="playerInputs" class="inputs"></div>
-    <div class="controls">
-      <img src="https://i.postimg.cc/z3F6p88z/startrace2.png" alt="Start Race" class="button-img" onclick="startRace()">
-      <img src="https://i.postimg.cc/xcj74h1K/Start-Stop-Music.png" alt="Music Toggle" class="button-img" onclick="toggleMusic()">
+    <div id="setup">
+      <label>Number of players: <input type="number" id="playerCount" min="2" max="12" value="3" onchange="generatePlayerInputs()"></label>
+      <div id="playerForm"></div>
+      <div id="totalOdds">Total Odds: 100%</div>
+      <div class="button-group">
+        <button class="action-button" onclick="startNextRace()">START RACE</button>
+        <button class="action-button" onclick="toggleMusic()">START / STOP MUSIC</button>
+      </div>
     </div>
 
     <div id="raceField">
-      <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" id="logoOverlay" alt="Logo">
+      <img id="logoOverlay" src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo">
     </div>
 
-    <div class="results">
-      <h3>Winners</h3>
-      <table id="resultsTable">
-        <thead><tr><th>Draft Pick</th><th>Player</th></tr></thead>
-        <tbody></tbody>
+    <div id="results">
+      <table>
+        <thead>
+          <tr><th>Draft Pick</th><th>Player</th></tr>
+        </thead>
+        <tbody id="resultTable"></tbody>
       </table>
     </div>
-
-    <audio id="music" loop>
-      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" type="audio/mpeg">
-    </audio>
-
   </div>
+
+  <audio id="backgroundMusic" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="whistle" src="https://www.soundjay.com/button/sounds/beep-07.mp3"></audio>
+  <audio id="cheer" src="https://www.soundjay.com/human/sounds/applause-8.mp3"></audio>
+
   <script>
-    const collapsibles = document.querySelectorAll(".collapsible");
-    collapsibles.forEach(btn => {
-      btn.addEventListener("click", function () {
+    let players = [];
+    let finalOrder = [];
+
+    function generatePlayerInputs() {
+      const count = parseInt(document.getElementById('playerCount').value);
+      const form = document.getElementById('playerForm');
+      form.innerHTML = '';
+      players = [];
+      for (let i = 0; i < count; i++) {
+        form.innerHTML += `
+          <div class="player-row">
+            <input type="text" id="name${i}" value="Player ${i+1}" placeholder="Name">
+            <input type="number" id="odds${i}" value="${(100/count).toFixed(1)}" step="0.1" placeholder="Odds %" onchange="updateTotalOdds()">
+          </div>`;
+      }
+      updateTotalOdds();
+    }
+
+    function updateTotalOdds() {
+      const count = parseInt(document.getElementById('playerCount').value);
+      let total = 0;
+      for (let i = 0; i < count; i++) {
+        const val = parseFloat(document.getElementById(`odds${i}`).value);
+        total += isNaN(val) ? 0 : val;
+      }
+      const totalOddsElem = document.getElementById('totalOdds');
+      totalOddsElem.innerText = `Total Odds: ${total.toFixed(1)}%`;
+      totalOddsElem.style.color = Math.abs(total - 100) < 0.1 ? 'green' : 'red';
+    }
+
+    function toggleMusic() {
+      const music = document.getElementById("backgroundMusic");
+      if (music.paused) music.play();
+      else music.pause();
+    }
+
+    function startNextRace() {
+      const count = parseInt(document.getElementById('playerCount').value);
+      players = [];
+      for (let i = 0; i < count; i++) {
+        const name = document.getElementById(`name${i}`).value;
+        const odds = parseFloat(document.getElementById(`odds${i}`).value);
+        players.push({ name, odds });
+      }
+      const winner = weightedDraw(players);
+      finalOrder.push(winner.name);
+      updateResultTable();
+      document.getElementById("whistle").play();
+    }
+
+    function weightedDraw(players) {
+      const total = players.reduce((sum, p) => sum + p.odds, 0);
+      const rand = Math.random() * total;
+      let cumulative = 0;
+      for (let p of players) {
+        cumulative += p.odds;
+        if (rand < cumulative) return p;
+      }
+      return players[players.length - 1];
+    }
+
+    function updateResultTable() {
+      const table = document.getElementById('resultTable');
+      table.innerHTML = '';
+      finalOrder.forEach((name, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${i+1}</td><td>${name}</td>`;
+        table.appendChild(row);
+      });
+      document.getElementById("cheer").play();
+    }
+
+    document.querySelectorAll(".collapsible").forEach(btn => {
+      btn.addEventListener("click", function() {
         this.classList.toggle("active");
         const content = this.nextElementSibling;
         content.style.display = content.style.display === "block" ? "none" : "block";
       });
     });
 
-    function generateInputs() {
-      const count = parseInt(document.getElementById('playerCount').value);
-      const container = document.getElementById('playerInputs');
-      container.innerHTML = '';
-      const defaultOdds = (100 / count).toFixed(1);
-      for (let i = 0; i < count; i++) {
-        container.innerHTML += `
-          <input type="text" placeholder="Player ${i+1}" id="name${i}">
-          <input type="number" step="0.1" id="odds${i}" value="${defaultOdds}" placeholder="Odds %">
-        `;
-      }
-    }
-
-    function toggleMusic() {
-      const music = document.getElementById("music");
-      if (music.paused) music.play(); else music.pause();
-    }
-
-    function startRace() {
-      const count = parseInt(document.getElementById('playerCount').value);
-      const results = document.querySelector("#resultsTable tbody");
-      results.innerHTML = '';
-      for (let i = 0; i < count; i++) {
-        const name = document.getElementById(`name${i}`).value || `Player ${i+1}`;
-        const row = results.insertRow();
-        row.innerHTML = `<td>${i+1}</td><td>${name}</td>`;
-      }
-      alert("Race animation to be implemented.");
-    }
-
-    window.onload = generateInputs;
+    window.onload = generatePlayerInputs;
   </script>
 </body>
 </html>
