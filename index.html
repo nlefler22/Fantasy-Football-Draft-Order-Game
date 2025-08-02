@@ -21,14 +21,14 @@
       margin-bottom: 10px;
     }
     #raceField {
-      position: relative;
-      width: 800px;
-      height: 500px;
-      background: repeating-linear-gradient(to right, #2e8b57, #2e8b57 50px, #228b22 50px, #228b22 100px);
-      border: 4px solid white;
-      margin: 20px auto;
-      overflow: hidden;
-    }
+  position: relative;
+  width: 800px;
+  height: 500px;
+  background: url('https://i.postimg.cc/HsjfycJx/Field-Only-High-Res.png') center center / cover no-repeat;
+  border: 4px solid white;
+  margin: 20px auto;
+  overflow: hidden;
+}
     .runner {
       position: absolute;
       display: flex;
@@ -113,6 +113,8 @@
 </div>
 
 <div id="raceField">
+  <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo" 
+       style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:150px; z-index:1; pointer-events:none;">
   <div id="nextRoundContainer">
     <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
   </div>
