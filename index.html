@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Fantasy Football Draft Race</title>
   <style>
     body {
@@ -10,9 +10,11 @@
       color: white;
       padding: 20px;
     }
+
     h2 {
       text-align: center;
     }
+
     .instructions, .note {
       background: #eef9ff;
       color: #000;
@@ -20,26 +22,44 @@
       border-left: 5px solid #0077cc;
       margin-bottom: 10px;
     }
+
     #raceField {
       position: relative;
       width: 800px;
-      height: 500px;
-      background: url('https://i.postimg.cc/HsjfycJx/Field-Only-High-Res.png') center center / cover no-repeat;
+      height: 800px; /* Taller to fit 12 players */
+      background-image: url("https://i.postimg.cc/HsjfycJx/Field-Only-High-Res.png");
+      background-size: cover;
+      background-position: center;
       border: 4px solid white;
       margin: 20px auto;
       overflow: hidden;
     }
+
+    #fieldLogo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      opacity: 0.8;
+      z-index: 1; /* Behind players */
+      pointer-events: none;
+    }
+
     .runner {
       position: absolute;
       display: flex;
       flex-direction: column;
       align-items: center;
       width: 60px;
+      z-index: 2; /* In front of logo */
     }
+
     .runner img {
       width: 40px;
       height: 40px;
     }
+
     table, th, td {
       border: 1px solid #444;
       border-collapse: collapse;
@@ -47,6 +67,7 @@
       background: white;
       color: black;
     }
+
     #nextRoundContainer {
       position: absolute;
       top: 50%;
@@ -55,6 +76,7 @@
       display: none;
       z-index: 10;
     }
+
     #nextRoundBtn {
       padding: 10px 25px;
       font-size: 20px;
@@ -64,13 +86,16 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     #totalOdds {
       font-weight: bold;
       margin-top: 10px;
     }
+
     #setup {
       text-align: center;
     }
+
     #results {
       background-color: rgba(255,255,255,0.95);
       padding: 20px;
@@ -82,13 +107,18 @@
   </style>
 </head>
 <body>
+
+<!-- Logo for Top of Webpage -->
+<div style="text-align:center;">
+  <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo" style="width:200px; margin-bottom: 20px;">
+</div>
+
 <!-- Background music player -->
 <audio id="backgroundMusic" loop>
   <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 
-<!-- Start music button -->
 <div style="text-align:center; margin-bottom: 10px;">
   <button onclick="document.getElementById('backgroundMusic').play()" style="padding:10px 20px; font-size:16px;">🎵 Start Music</button>
 </div>
@@ -99,7 +129,7 @@
   <strong>Instructions:</strong> 1/ Select the number of players, 2/ Input your custom odds, 3/ Start the race. After each race, click "Next Round" to continue determining 2nd, 3rd, etc... At the end of the last round, the complete draft order will be determined.
 </div>
 <div class="note">
-  <strong>Methodology:</strong> The winner of each round is determined by weighted random selection based purely on the odds provided. After each round, the previous winner is removed and the selection is made again with the remaining players, based on the updated odds.
+  <strong>Methodology:</strong> The winner of each round is determined by weighted random selection based purely on the odds provided.
 </div>
 
 <div id="setup">
@@ -113,8 +143,7 @@
 </div>
 
 <div id="raceField">
-  <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo"
-       style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:150px; z-index:1; pointer-events:none;">
+  <img id="fieldLogo" src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Field Logo">
   <div id="nextRoundContainer">
     <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
   </div>
@@ -226,19 +255,16 @@ function updateResultTable() {
 
 function animateRace(winnerName, callback) {
   document.getElementById('whistle').play();
-  raceField.innerHTML = `
-    <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo"
-         style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:150px; z-index:1; pointer-events:none;">
-    <div id="nextRoundContainer">
-      <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
-    </div>
-  `;
+  raceField.innerHTML = '<img id="fieldLogo" src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png"><div id="nextRoundContainer"><button id="nextRoundBtn" onclick="startNextRace()">Next Round</button></div>';
+
   const finishLine = 800 - 60;
+  const totalPlayers = remainingPlayers.length;
+  const startY = (800 - (totalPlayers * 60)) / 2;
 
   const runners = remainingPlayers.map((player, index) => {
     const runnerDiv = document.createElement('div');
     runnerDiv.className = 'runner';
-    runnerDiv.style.top = (index * 60 + 10) + 'px';
+    runnerDiv.style.top = (startY + index * 60) + 'px';
 
     const img = document.createElement('img');
     img.src = 'https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png';
@@ -297,6 +323,6 @@ function animateRace(winnerName, callback) {
 
 window.onload = generatePlayerInputs;
 </script>
+
 </body>
 </html>
-
