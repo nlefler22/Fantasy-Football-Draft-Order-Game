@@ -139,12 +139,12 @@ function generatePlayerInputs() {
   const form = document.getElementById('playerForm');
   form.innerHTML = '';
   for (let i = 0; i < count; i++) {
-    form.innerHTML += 
+    form.innerHTML += `
       <div>
         <label>Player ${i + 1} Name: <input type="text" id="name${i}" value="Player ${i + 1}"></label>
         <label>Odds (%): <input type="number" id="odds${i}" step="0.1" value="${(100 / count).toFixed(1)}" oninput="updateTotalOdds()"></label>
       </div>
-    ;
+    `;
   }
   updateTotalOdds();
 }
@@ -153,11 +153,11 @@ function updateTotalOdds() {
   let total = 0;
   const count = parseInt(document.getElementById('playerCount').value);
   for (let i = 0; i < count; i++) {
-    const val = parseFloat(document.getElementById(odds${i}).value);
+    const val = parseFloat(document.getElementById(`odds${i}`).value);
     total += isNaN(val) ? 0 : val;
   }
   const totalOddsElem = document.getElementById('totalOdds');
-  totalOddsElem.innerText = Total Odds: ${total.toFixed(1)}%;
+  totalOddsElem.innerText = `Total Odds: ${total.toFixed(1)}%`;
   totalOddsElem.style.color = (Math.abs(total - 100) < 0.1) ? 'green' : 'red';
 }
 
@@ -179,8 +179,8 @@ function startNextRace() {
     const count = parseInt(document.getElementById('playerCount').value);
     originalPlayers = [];
     for (let i = 0; i < count; i++) {
-      const name = document.getElementById(name${i}).value;
-      const odds = parseFloat(document.getElementById(odds${i}).value);
+      const name = document.getElementById(`name${i}`).value;
+      const odds = parseFloat(document.getElementById(`odds${i}`).value);
       originalPlayers.push({ name, odds });
     }
     remainingPlayers = [...originalPlayers];
@@ -303,8 +303,9 @@ function animateRace(winnerName, callback) {
   }, 30);
 }
 
+
 window.onload = generatePlayerInputs;
 </script>
 
 </body>
-</html> 
+</html>
