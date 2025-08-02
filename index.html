@@ -20,7 +20,7 @@
       border-left: 5px solid #0077cc;
       margin-bottom: 10px;
     }
-        #raceField {
+    #raceField {
       position: relative;
       width: 800px;
       height: 500px;
@@ -113,7 +113,7 @@
 </div>
 
 <div id="raceField">
-  <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo" 
+  <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo"
        style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:150px; z-index:1; pointer-events:none;">
   <div id="nextRoundContainer">
     <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
@@ -226,10 +226,15 @@ function updateResultTable() {
 
 function animateRace(winnerName, callback) {
   document.getElementById('whistle').play();
-  raceField.innerHTML = '<div id="nextRoundContainer"><button id="nextRoundBtn" onclick="startNextRace()">Next Round</button></div>';
+  raceField.innerHTML = `
+    <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo"
+         style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:150px; z-index:1; pointer-events:none;">
+    <div id="nextRoundContainer">
+      <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
+    </div>
+  `;
   const finishLine = 800 - 60;
 
-  // Setup runners
   const runners = remainingPlayers.map((player, index) => {
     const runnerDiv = document.createElement('div');
     runnerDiv.className = 'runner';
@@ -257,39 +262,24 @@ function animateRace(winnerName, callback) {
 
   const winnerRunner = runners.find(r => r.name === winnerName);
   const losers = runners.filter(r => r.name !== winnerName);
-
-  // Split losers into GroupA and GroupB
   const mid = Math.ceil(losers.length / 2);
   const groupA = losers.slice(0, mid);
   const groupB = losers.slice(mid);
 
-  // Animate
   const interval = setInterval(() => {
     runners.forEach(runner => {
       const percent = runner.x / finishLine;
       let speed = 0;
 
       if (percent < 0.3) {
-        // Zone 1
-        speed = (runner.name === winnerName)
-          ? 1.9
-          : (groupA.includes(runner) ? 2.0 : 2.1);
+        speed = (runner.name === winnerName) ? 1.9 : (groupA.includes(runner) ? 2.0 : 2.1);
       } else if (percent < 0.6) {
-        // Zone 2
-        speed = (runner.name === winnerName)
-          ? 1.6
-          : (groupA.includes(runner) ? 1.6 : 1.4);
+        speed = (runner.name === winnerName) ? 1.6 : (groupA.includes(runner) ? 1.6 : 1.4);
       } else {
-        // Zone 3
-        speed = (runner.name === winnerName)
-          ? 2.0
-          : (groupA.includes(runner) ? 1.8 : 1.9);
+        speed = (runner.name === winnerName) ? 2.0 : (groupA.includes(runner) ? 1.8 : 1.9);
       }
 
-      // Random variation for realism
       runner.x += speed + Math.random() * 0.3;
-
-      // Prevent non-winners from finishing early
       if (runner.name !== winnerName && runner.x >= finishLine * 0.99) {
         runner.x = finishLine * 0.99;
       }
@@ -305,9 +295,8 @@ function animateRace(winnerName, callback) {
   }, 30);
 }
 
-
 window.onload = generatePlayerInputs;
 </script>
-
 </body>
 </html>
+
