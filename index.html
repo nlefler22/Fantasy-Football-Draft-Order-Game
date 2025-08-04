@@ -5,7 +5,7 @@
   <title>Fantasy Football Draft Race</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: sans-serif;
       background-color: #1e3d1a;
       color: white;
       padding: 20px;
@@ -14,7 +14,6 @@
 
     h2 {
       text-align: center;
-      margin-bottom: 10px;
     }
 
     .instructions, .note {
@@ -23,19 +22,31 @@
       padding: 10px;
       border-left: 5px solid #0077cc;
       margin: 10px auto;
-      max-width: 850px;
+      width: 90%;
+      max-width: 800px;
     }
 
     #raceField {
       position: relative;
-      width: 1000px;
-      height: 850px;
+      width: 960px;
+      height: 800px;
       background-image: url("https://i.postimg.cc/k552VGGn/Football-Field-Final.png");
-      background-size: cover;
+      background-size: contain;
+      background-repeat: no-repeat;
       background-position: center;
-      border: 4px solid white;
-      margin: 30px auto;
+      margin: 20px auto;
       overflow: hidden;
+    }
+
+    #fieldLogo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      opacity: 0.8;
+      z-index: 1;
+      pointer-events: none;
     }
 
     .runner {
@@ -43,91 +54,60 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 80px;
+      width: 60px;
       z-index: 2;
     }
 
     .runner img {
-      width: 60px;
+      width: 40px;
+      height: 40px;
     }
 
     .crown {
       position: absolute;
-      top: -30px;
-      width: 50px;
+      top: -25px;
+      width: 40px;
       z-index: 3;
     }
 
-    .popup-winner {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.95);
-      border: 3px solid #000;
-      padding: 20px;
-      z-index: 10;
-      text-align: center;
-      border-radius: 12px;
-      display: none;
-    }
-
-    .popup-winner img {
-      width: 70px;
-    }
-
-    .popup-winner h3 {
+    table, th, td {
+      border: 1px solid #444;
+      border-collapse: collapse;
+      padding: 5px 10px;
+      background: white;
       color: black;
     }
 
-    #setup, #results {
+    #nextRoundContainer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 10;
+    }
+
+    #setup {
       text-align: center;
-      max-width: 900px;
-      margin: auto;
+      margin-bottom: 10px;
     }
 
-    #playerForm div {
-      margin: 5px;
+    #results {
+      background-color: rgba(255,255,255,0.95);
+      padding: 20px;
+      border-radius: 10px;
+      color: black;
+      width: fit-content;
+      margin: 10px auto;
     }
 
-    input {
-      margin-left: 5px;
-      padding: 5px;
-      font-size: 14px;
-    }
-
-    #totalOdds {
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .btn-image {
-      border: none;
-      background: transparent;
+    .button-img {
+      width: 200px;
       cursor: pointer;
     }
 
-    .btn-image img {
-      width: 180px;
-    }
-
-    #btnRow {
-      margin: 20px;
-    }
-
-    #musicBtn {
-      margin-left: 20px;
-    }
-
-    #resultTable {
-      background: #fff;
-      color: #000;
-      margin: auto;
-    }
-
-    #resultTable th, #resultTable td {
-      padding: 10px 15px;
-      border: 1px solid #000;
+    #controlButtons {
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -143,8 +123,12 @@
 
 <h2>Fantasy Football Draft Race</h2>
 
-<div class="instructions"><strong>Instructions:</strong> 1/ Select number of players, 2/ Enter odds, 3/ Click start. Use "Next Round" to determine the full order.</div>
-<div class="note"><strong>Methodology:</strong> Each round uses weighted randomness based on odds.</div>
+<div class="instructions">
+  <strong>Instructions:</strong> 1/ Select the number of players, 2/ Input your custom odds, 3/ Start the race. After each race, click "Next Round" to continue determining 2nd, 3rd, etc... At the end of the last round, the complete draft order will be determined.
+</div>
+<div class="note">
+  <strong>Methodology:</strong> Each round uses weighted random selection based on the odds provided.
+</div>
 
 <div id="setup">
   <label>Number of Players:
@@ -153,19 +137,18 @@
   <button onclick="generatePlayerInputs()">Set Players</button>
   <form id="playerForm"></form>
   <div id="totalOdds">Total Odds: 0%</div>
-</div>
 
-<div id="btnRow" style="text-align:center;">
-  <button id="startRaceBtn" class="btn-image" onclick="startNextRace()">
-    <img src="https://i.postimg.cc/z3F6p88z/startrace2.png" alt="Start Race">
-  </button>
-  <button id="musicBtn" class="btn-image" onclick="toggleMusic()">
-    <img id="musicIcon" src="https://i.postimg.cc/xcj74h1K/Start-Stop-Music.png" alt="Music Toggle">
-  </button>
+  <div id="controlButtons">
+    <img src="https://i.postimg.cc/z3F6p88z/startrace2.png" alt="Start Race" class="button-img" onclick="startNextRace()">
+    <img src="https://i.postimg.cc/xcj74h1K/Start-Stop-Music.png" alt="Toggle Music" class="button-img" onclick="toggleMusic()">
+  </div>
 </div>
 
 <div id="raceField">
-  <div id="popupWinner" class="popup-winner"></div>
+  <img id="fieldLogo" src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Field Logo">
+  <div id="nextRoundContainer">
+    <img src="https://i.postimg.cc/tZ0NGZdK/nextround1.png" alt="Next Round" class="button-img" onclick="startNextRace()">
+  </div>
 </div>
 
 <div id="results">
@@ -182,19 +165,12 @@
 let originalPlayers = [];
 let remainingPlayers = [];
 let finalOrder = [];
-let musicPlaying = false;
 const raceField = document.getElementById("raceField");
-
-const runnerImages = [
-  "https://i.postimg.cc/njvYFF0C/bobbleplayerblue.png",
-  "https://i.postimg.cc/v1xtKLn7/bobbleplayergold.png",
-  "https://i.postimg.cc/301XGLMh/bobbleplayerred.png"
-];
+const music = document.getElementById("backgroundMusic");
 
 function toggleMusic() {
-  const music = document.getElementById('backgroundMusic');
-  musicPlaying ? music.pause() : music.play();
-  musicPlaying = !musicPlaying;
+  if (music.paused) music.play();
+  else music.pause();
 }
 
 function generatePlayerInputs() {
@@ -206,7 +182,8 @@ function generatePlayerInputs() {
       <div>
         <label>Player ${i + 1} Name: <input type="text" id="name${i}" value="Player ${i + 1}"></label>
         <label>Odds (%): <input type="number" id="odds${i}" step="0.1" value="${(100 / count).toFixed(1)}" oninput="updateTotalOdds()"></label>
-      </div>`;
+      </div>
+    `;
   }
   updateTotalOdds();
 }
@@ -218,9 +195,9 @@ function updateTotalOdds() {
     const val = parseFloat(document.getElementById(`odds${i}`).value);
     total += isNaN(val) ? 0 : val;
   }
-  const elem = document.getElementById('totalOdds');
-  elem.innerText = `Total Odds: ${total.toFixed(1)}%`;
-  elem.style.color = Math.abs(total - 100) < 0.1 ? 'green' : 'red';
+  const totalOddsElem = document.getElementById('totalOdds');
+  totalOddsElem.innerText = `Total Odds: ${total.toFixed(1)}%`;
+  totalOddsElem.style.color = (Math.abs(total - 100) < 0.1) ? 'green' : 'red';
 }
 
 function weightedDraw(players) {
@@ -235,11 +212,12 @@ function weightedDraw(players) {
 }
 
 function startNextRace() {
-  document.getElementById('popupWinner').style.display = 'none';
-  raceField.innerHTML = '<div id="popupWinner" class="popup-winner"></div>';
+  document.getElementById('nextRoundContainer').style.display = 'none';
+  raceField.innerHTML = '<img id="fieldLogo" src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png"><div id="nextRoundContainer"><img src="https://i.postimg.cc/tZ0NGZdK/nextround1.png" class="button-img" onclick="startNextRace()"></div>';
 
   if (originalPlayers.length === 0) {
     const count = parseInt(document.getElementById('playerCount').value);
+    originalPlayers = [];
     for (let i = 0; i < count; i++) {
       const name = document.getElementById(`name${i}`).value;
       const odds = parseFloat(document.getElementById(`odds${i}`).value);
@@ -257,6 +235,7 @@ function startNextRace() {
       finalOrder.push(winner.name);
       finalOrder.push(loser.name);
       updateResultTable();
+      document.getElementById('cheer').play();
       remainingPlayers = [];
     });
     return;
@@ -267,6 +246,8 @@ function startNextRace() {
     finalOrder.push(winner.name);
     remainingPlayers = remainingPlayers.filter(p => p.name !== winner.name);
     updateResultTable();
+    document.getElementById('cheer').play();
+    document.getElementById('nextRoundContainer').style.display = 'block';
   });
 }
 
@@ -282,17 +263,25 @@ function updateResultTable() {
 
 function animateRace(winnerName, callback) {
   document.getElementById('whistle').play();
-  const finishLine = 900 - 80;
+  const finishLine = 900;
+  const colors = ['blue', 'red', 'gold'];
+  const runnerImgs = {
+    blue: 'https://i.postimg.cc/njvYFF0C/bobbleplayerblue.png',
+    red: 'https://i.postimg.cc/301XGLMh/bobbleplayerred.png',
+    gold: 'https://i.postimg.cc/v1xtKLn7/bobbleplayergold.png'
+  };
   const totalPlayers = remainingPlayers.length;
-  const startY = (850 - (totalPlayers * 70)) / 2;
+  const startY = (800 - (totalPlayers * 70)) / 2;
 
   const runners = remainingPlayers.map((player, index) => {
+    const color = colors[Math.floor(Math.random() * colors.length)];
     const runnerDiv = document.createElement('div');
     runnerDiv.className = 'runner';
-    runnerDiv.style.top = `${startY + index * 70}px`;
+    
+    runnerDiv.style.top = (startY + index * 70) + 'px';
 
     const img = document.createElement('img');
-    img.src = runnerImages[Math.floor(Math.random() * runnerImages.length)];
+    img.src = runnerImgs[color];
     img.alt = player.name;
 
     const label = document.createElement('div');
@@ -304,40 +293,43 @@ function animateRace(winnerName, callback) {
     runnerDiv.appendChild(label);
     raceField.appendChild(runnerDiv);
 
-    return { name: player.name, div: runnerDiv, x: 0, img };
+    return {
+      name: player.name,
+      div: runnerDiv,
+      x: 0
+    };
   });
 
   const winnerRunner = runners.find(r => r.name === winnerName);
-
   const interval = setInterval(() => {
-    runners.forEach(r => {
-      const percent = r.x / finishLine;
-      const speed = (r.name === winnerName ? 2 : 1.8) + Math.random() * 0.5;
-      r.x += speed;
-      if (r.x >= finishLine && r.name === winnerName) {
-        r.x = finishLine;
+    runners.forEach(runner => {
+      const percent = runner.x / finishLine;
+      let speed = 0;
+
+      if (percent < 0.3) speed = (runner.name === winnerName) ? 1.9 : 2.0;
+      else if (percent < 0.6) speed = (runner.name === winnerName) ? 1.6 : 1.5;
+      else speed = (runner.name === winnerName) ? 2.1 : 1.8;
+
+      runner.x += speed + Math.random() * 0.3;
+      if (runner.name !== winnerName && runner.x >= finishLine * 0.99) {
+        runner.x = finishLine * 0.99;
       }
-      r.div.style.left = `${Math.min(r.x, finishLine)}px`;
+
+      runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
     });
 
     if (winnerRunner.x >= finishLine) {
       clearInterval(interval);
-      document.getElementById('cheer').play();
-      showWinnerPopup(winnerRunner);
+      winnerRunner.div.style.left = finishLine + 'px';
+
+      const crown = document.createElement('img');
+      crown.src = 'https://i.postimg.cc/RqB2cNrp/Crown-for-winner.png';
+      crown.className = 'crown';
+      winnerRunner.div.appendChild(crown);
+
       callback();
     }
   }, 30);
-}
-
-function showWinnerPopup(runner) {
-  const popup = document.getElementById('popupWinner');
-  popup.innerHTML = `
-    <h3>🏆 Round Winner 🏆</h3>
-    <img src="${runner.img.src}" alt="Winner">
-    <br><strong>${runner.name}</strong>
-    <br><img class="crown" src="https://i.postimg.cc/RqB2cNrp/Crown-for-winner.png" alt="Crown">
-  `;
-  popup.style.display = 'block';
 }
 
 window.onload = generatePlayerInputs;
