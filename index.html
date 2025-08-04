@@ -1,4 +1,3 @@
-<!-- COMPLETE HTML STARTS HERE -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,14 +5,16 @@
   <title>Fantasy Football Draft Race</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Arial', sans-serif;
       background-color: #1e3d1a;
       color: white;
       padding: 20px;
+      margin: 0;
     }
 
     h2 {
       text-align: center;
+      margin-bottom: 10px;
     }
 
     .instructions, .note {
@@ -21,31 +22,20 @@
       color: #000;
       padding: 10px;
       border-left: 5px solid #0077cc;
-      margin-bottom: 10px;
+      margin: 10px auto;
+      max-width: 850px;
     }
 
     #raceField {
       position: relative;
-      width: 800px;
-      height: 800px;
+      width: 1000px;
+      height: 850px;
       background-image: url("https://i.postimg.cc/k552VGGn/Football-Field-Final.png");
-      background-size: contain;
-      background-repeat: no-repeat;
+      background-size: cover;
       background-position: center;
       border: 4px solid white;
-      margin: 20px auto;
+      margin: 30px auto;
       overflow: hidden;
-    }
-
-    #fieldLogo {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 200px;
-      opacity: 0.8;
-      z-index: 1;
-      pointer-events: none;
     }
 
     .runner {
@@ -53,40 +43,57 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 60px;
+      width: 80px;
       z-index: 2;
     }
 
     .runner img {
-      width: 40px;
-      height: 40px;
+      width: 60px;
     }
 
-    table, th, td {
-      border: 1px solid #444;
-      border-collapse: collapse;
-      padding: 5px 10px;
-      background: white;
+    .crown {
+      position: absolute;
+      top: -30px;
+      width: 50px;
+      z-index: 3;
+    }
+
+    .popup-winner {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      border: 3px solid #000;
+      padding: 20px;
+      z-index: 10;
+      text-align: center;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .popup-winner img {
+      width: 70px;
+    }
+
+    .popup-winner h3 {
       color: black;
     }
 
-    #nextRoundContainer {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: none;
-      z-index: 10;
+    #setup, #results {
+      text-align: center;
+      max-width: 900px;
+      margin: auto;
     }
 
-    #nextRoundBtn {
-      padding: 10px 25px;
-      font-size: 20px;
-      background-color: #0077cc;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+    #playerForm div {
+      margin: 5px;
+    }
+
+    input {
+      margin-left: 5px;
+      padding: 5px;
+      font-size: 14px;
     }
 
     #totalOdds {
@@ -94,44 +101,50 @@
       margin-top: 10px;
     }
 
-    #setup {
-      text-align: center;
+    .btn-image {
+      border: none;
+      background: transparent;
+      cursor: pointer;
     }
 
-    #results {
-      background-color: rgba(255,255,255,0.95);
-      padding: 20px;
-      border-radius: 10px;
-      color: black;
-      width: fit-content;
-      margin: 10px auto;
+    .btn-image img {
+      width: 180px;
+    }
+
+    #btnRow {
+      margin: 20px;
+    }
+
+    #musicBtn {
+      margin-left: 20px;
+    }
+
+    #resultTable {
+      background: #fff;
+      color: #000;
+      margin: auto;
+    }
+
+    #resultTable th, #resultTable td {
+      padding: 10px 15px;
+      border: 1px solid #000;
     }
   </style>
 </head>
 <body>
 
-<!-- Top Logo -->
 <div style="text-align:center;">
   <img src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Logo" style="width:200px; margin-bottom: 20px;">
 </div>
 
-<!-- Music -->
 <audio id="backgroundMusic" loop>
   <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" type="audio/mpeg">
 </audio>
 
-<div style="text-align:center; margin-bottom: 10px;">
-  <button onclick="document.getElementById('backgroundMusic').play()" style="padding:10px 20px; font-size:16px;">🎵 Start Music</button>
-</div>
-
 <h2>Fantasy Football Draft Race</h2>
 
-<div class="instructions">
-  <strong>Instructions:</strong> 1/ Select the number of players, 2/ Input your custom odds, 3/ Start the race.
-</div>
-<div class="note">
-  <strong>Methodology:</strong> Weighted random winner determined purely by odds.
-</div>
+<div class="instructions"><strong>Instructions:</strong> 1/ Select number of players, 2/ Enter odds, 3/ Click start. Use "Next Round" to determine the full order.</div>
+<div class="note"><strong>Methodology:</strong> Each round uses weighted randomness based on odds.</div>
 
 <div id="setup">
   <label>Number of Players:
@@ -140,14 +153,19 @@
   <button onclick="generatePlayerInputs()">Set Players</button>
   <form id="playerForm"></form>
   <div id="totalOdds">Total Odds: 0%</div>
-  <button onclick="startNextRace()">Start Race</button>
+</div>
+
+<div id="btnRow" style="text-align:center;">
+  <button id="startRaceBtn" class="btn-image" onclick="startNextRace()">
+    <img src="https://i.postimg.cc/z3F6p88z/startrace2.png" alt="Start Race">
+  </button>
+  <button id="musicBtn" class="btn-image" onclick="toggleMusic()">
+    <img id="musicIcon" src="https://i.postimg.cc/xcj74h1K/Start-Stop-Music.png" alt="Music Toggle">
+  </button>
 </div>
 
 <div id="raceField">
-  <img id="fieldLogo" src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png" alt="Field Logo">
-  <div id="nextRoundContainer">
-    <button id="nextRoundBtn" onclick="startNextRace()">Next Round</button>
-  </div>
+  <div id="popupWinner" class="popup-winner"></div>
 </div>
 
 <div id="results">
@@ -161,8 +179,23 @@
 <audio id="cheer" src="https://www.soundjay.com/human/sounds/applause-8.mp3" preload="auto"></audio>
 
 <script>
-let originalPlayers = [], remainingPlayers = [], finalOrder = [];
+let originalPlayers = [];
+let remainingPlayers = [];
+let finalOrder = [];
+let musicPlaying = false;
 const raceField = document.getElementById("raceField");
+
+const runnerImages = [
+  "https://i.postimg.cc/njvYFF0C/bobbleplayerblue.png",
+  "https://i.postimg.cc/v1xtKLn7/bobbleplayergold.png",
+  "https://i.postimg.cc/301XGLMh/bobbleplayerred.png"
+];
+
+function toggleMusic() {
+  const music = document.getElementById('backgroundMusic');
+  musicPlaying ? music.pause() : music.play();
+  musicPlaying = !musicPlaying;
+}
 
 function generatePlayerInputs() {
   const count = parseInt(document.getElementById('playerCount').value);
@@ -179,14 +212,15 @@ function generatePlayerInputs() {
 }
 
 function updateTotalOdds() {
-  let total = 0, count = parseInt(document.getElementById('playerCount').value);
+  let total = 0;
+  const count = parseInt(document.getElementById('playerCount').value);
   for (let i = 0; i < count; i++) {
     const val = parseFloat(document.getElementById(`odds${i}`).value);
     total += isNaN(val) ? 0 : val;
   }
   const elem = document.getElementById('totalOdds');
   elem.innerText = `Total Odds: ${total.toFixed(1)}%`;
-  elem.style.color = (Math.abs(total - 100) < 0.1) ? 'green' : 'red';
+  elem.style.color = Math.abs(total - 100) < 0.1 ? 'green' : 'red';
 }
 
 function weightedDraw(players) {
@@ -201,10 +235,11 @@ function weightedDraw(players) {
 }
 
 function startNextRace() {
-  document.getElementById('nextRoundContainer').style.display = 'none';
+  document.getElementById('popupWinner').style.display = 'none';
+  raceField.innerHTML = '<div id="popupWinner" class="popup-winner"></div>';
+
   if (originalPlayers.length === 0) {
     const count = parseInt(document.getElementById('playerCount').value);
-    originalPlayers = [];
     for (let i = 0; i < count; i++) {
       const name = document.getElementById(`name${i}`).value;
       const odds = parseFloat(document.getElementById(`odds${i}`).value);
@@ -212,7 +247,6 @@ function startNextRace() {
     }
     remainingPlayers = [...originalPlayers];
     finalOrder = [];
-    document.getElementById('results').style.display = 'block';
     document.getElementById('resultTable').innerHTML = '<tr><th>Draft Pick</th><th>Player</th></tr>';
   }
 
@@ -220,9 +254,9 @@ function startNextRace() {
     const winner = weightedDraw(remainingPlayers);
     const loser = remainingPlayers.find(p => p.name !== winner.name);
     animateRace(winner.name, () => {
-      finalOrder.push(winner.name, loser.name);
+      finalOrder.push(winner.name);
+      finalOrder.push(loser.name);
       updateResultTable();
-      document.getElementById('cheer').play();
       remainingPlayers = [];
     });
     return;
@@ -233,8 +267,6 @@ function startNextRace() {
     finalOrder.push(winner.name);
     remainingPlayers = remainingPlayers.filter(p => p.name !== winner.name);
     updateResultTable();
-    document.getElementById('cheer').play();
-    document.getElementById('nextRoundContainer').style.display = 'block';
   });
 }
 
@@ -250,52 +282,62 @@ function updateResultTable() {
 
 function animateRace(winnerName, callback) {
   document.getElementById('whistle').play();
-  raceField.innerHTML = '<img id="fieldLogo" src="https://i.postimg.cc/CnSCd3QJ/ffdraftracelogo.png"><div id="nextRoundContainer"><button id="nextRoundBtn" onclick="startNextRace()">Next Round</button></div>';
-
-  const finishLine = raceField.clientWidth - 60;
+  const finishLine = 900 - 80;
   const totalPlayers = remainingPlayers.length;
-  const startY = (raceField.clientHeight - (totalPlayers * 60)) / 2;
+  const startY = (850 - (totalPlayers * 70)) / 2;
 
   const runners = remainingPlayers.map((player, index) => {
-    const div = document.createElement('div');
-    div.className = 'runner';
-    div.style.top = (startY + index * 60) + 'px';
+    const runnerDiv = document.createElement('div');
+    runnerDiv.className = 'runner';
+    runnerDiv.style.top = `${startY + index * 70}px`;
 
     const img = document.createElement('img');
-    img.src = 'https://i.postimg.cc/mgFxbxtn/Pixelated-Football-Player-in-Motion.png';
+    img.src = runnerImages[Math.floor(Math.random() * runnerImages.length)];
+    img.alt = player.name;
 
     const label = document.createElement('div');
     label.innerText = player.name;
     label.style.color = 'white';
     label.style.fontSize = '12px';
 
-    div.appendChild(img);
-    div.appendChild(label);
-    raceField.appendChild(div);
+    runnerDiv.appendChild(img);
+    runnerDiv.appendChild(label);
+    raceField.appendChild(runnerDiv);
 
-    return { name: player.name, div, x: 0 };
+    return { name: player.name, div: runnerDiv, x: 0, img };
   });
 
   const winnerRunner = runners.find(r => r.name === winnerName);
-  const [groupA, groupB] = [runners.filter(r => r.name !== winnerName).slice(0, Math.ceil((runners.length - 1)/2)), runners.slice(Math.ceil((runners.length - 1)/2))];
 
   const interval = setInterval(() => {
     runners.forEach(r => {
       const percent = r.x / finishLine;
-      let speed = 0;
-      if (percent < 0.3) speed = (r.name === winnerName) ? 1.9 : (groupA.includes(r) ? 2.0 : 2.1);
-      else if (percent < 0.6) speed = (r.name === winnerName) ? 1.6 : (groupA.includes(r) ? 1.6 : 1.4);
-      else speed = (r.name === winnerName) ? 2.0 : (groupA.includes(r) ? 1.8 : 1.9);
-      r.x += speed + Math.random() * 0.3;
-      if (r.name !== winnerName && r.x >= finishLine * 0.99) r.x = finishLine * 0.99;
-      r.div.style.left = Math.min(r.x, finishLine) + 'px';
+      const speed = (r.name === winnerName ? 2 : 1.8) + Math.random() * 0.5;
+      r.x += speed;
+      if (r.x >= finishLine && r.name === winnerName) {
+        r.x = finishLine;
+      }
+      r.div.style.left = `${Math.min(r.x, finishLine)}px`;
     });
+
     if (winnerRunner.x >= finishLine) {
       clearInterval(interval);
-      winnerRunner.div.style.left = finishLine + 'px';
+      document.getElementById('cheer').play();
+      showWinnerPopup(winnerRunner);
       callback();
     }
   }, 30);
+}
+
+function showWinnerPopup(runner) {
+  const popup = document.getElementById('popupWinner');
+  popup.innerHTML = `
+    <h3>🏆 Round Winner 🏆</h3>
+    <img src="${runner.img.src}" alt="Winner">
+    <br><strong>${runner.name}</strong>
+    <br><img class="crown" src="https://i.postimg.cc/RqB2cNrp/Crown-for-winner.png" alt="Crown">
+  `;
+  popup.style.display = 'block';
 }
 
 window.onload = generatePlayerInputs;
