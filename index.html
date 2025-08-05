@@ -264,7 +264,7 @@ function updateResultTable() {
 function animateRace(winnerName, callback) {
   document.getElementById('whistle').play();
   const finishLine = 900;
-  const capDistance = finishLine * 0.9;
+  const capDistance = finishLine * 0.8;
   const colors = ['blue', 'red', 'gold'];
   const runnerImgs = {
     blue: 'https://i.postimg.cc/njvYFF0C/bobbleplayerblue.png',
@@ -310,11 +310,11 @@ function animateRace(winnerName, callback) {
   if (isWinner) {
     // WINNER logic
     if (isFirstHalf) {
-      if (Math.random() < 0.5) {
+      if (Math.random() < 0.3) {
         runner.x += Math.floor(Math.random() * 4) + 1; // 
       }
     } else {
-      if (Math.random() < 0.525) {
+      if (Math.random() < 0.5) {
         runner.x += Math.floor(Math.random() * 5) + 1; // 
       }
     }
@@ -322,7 +322,7 @@ function animateRace(winnerName, callback) {
     // NON-WINNER logic
     if (runner.x < capDistance) {
       if (isFirstHalf) {
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.3) {
           runner.x += Math.floor(Math.random() * 4) + 1; // 
         }
       } else {
@@ -356,7 +356,7 @@ function animateRace(winnerName, callback) {
 
       callback();
     }
-  }, 80);
+  }, 40);
 }
   
 </script>
