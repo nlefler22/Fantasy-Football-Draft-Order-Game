@@ -306,11 +306,11 @@ function animateRace(winnerName, callback) {
     runners.forEach(runner => {
       if (runner.name === winnerName) {
         if (Math.random() < 0.55) {
-          runner.x += (Math.random() * 7 + 1) * 0.5; // 3–10 scaled down
+          runner.x += (Math.random() * 7 + 1) * 1; // 3–10 scaled down
         }
       } else {
         if (runner.x < capDistance && Math.random() < 0.5) {
-          runner.x += (Math.random() * 7 + 1) * 0.5; // 1–8 scaled down
+          runner.x += (Math.random() * 7 + 1) * 1; // 1–8 scaled down
         }
         if (runner.x >= capDistance) {
           runner.x = Math.min(runner.x, capDistance);
@@ -331,7 +331,7 @@ function animateRace(winnerName, callback) {
 
       callback();
     }
-  }, 20);
+  }, 200);
 }
   
 </script>
