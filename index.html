@@ -305,7 +305,7 @@ function animateRace(winnerName, callback) {
   const interval = setInterval(() => {
     runners.forEach(runner => {
   const isWinner = runner.name === winnerName;
-  const isFirstHalf = runner.x < finishLine / 2;
+  const isFirstHalf = runner.x < finishLine * 0.7;
 
   if (isWinner) {
     // WINNER logic
