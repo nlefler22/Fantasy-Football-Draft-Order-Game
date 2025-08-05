@@ -311,11 +311,11 @@ function animateRace(winnerName, callback) {
     // WINNER logic
     if (isFirstHalf) {
       if (Math.random() < 0.5) {
-        runner.x += Math.floor(Math.random() * 5) + 2; // 2–6 in first half
+        runner.x += Math.floor(Math.random() * 4) + 1; // 2–6 in first half
       }
     } else {
-      if (Math.random() < 0.9) {
-        runner.x += Math.floor(Math.random() * 7) + 4; // 4–10 in second half
+      if (Math.random() < 0.75) {
+        runner.x += Math.floor(Math.random() * 6) + 2; // 4–10 in second half
       }
     }
   } else {
@@ -344,23 +344,6 @@ function animateRace(winnerName, callback) {
 
     
     
-    
-    runners.forEach(runner => {
-      if (runner.name === winnerName) {
-        if (Math.random() < 0.55) {
-          runner.x += (Math.random() * 7 + 1) * 1; // 3–10 scaled down
-        }
-      } else {
-        if (runner.x < capDistance && Math.random() < 0.5) {
-          runner.x += (Math.random() * 7 + 1) * 1; // 1–8 scaled down
-        }
-        if (runner.x >= capDistance) {
-          runner.x = Math.min(runner.x, capDistance);
-        }
-      }
-
-      runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
-    });
 
     if (winnerRunner.x >= finishLine) {
       clearInterval(interval);
@@ -373,7 +356,7 @@ function animateRace(winnerName, callback) {
 
       callback();
     }
-  }, 200);
+  }, 20);
 }
   
 </script>
