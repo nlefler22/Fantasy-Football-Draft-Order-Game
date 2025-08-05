@@ -310,7 +310,7 @@ function animateRace(winnerName, callback) {
   if (isWinner) {
     // WINNER logic
     if (isFirstHalf) {
-      if (Math.random() < 0.6) {
+      if (Math.random() < 0.5) {
         runner.x += Math.floor(Math.random() * 4) + 1; // 
       }
     } else {
@@ -356,7 +356,7 @@ function animateRace(winnerName, callback) {
 
       callback();
     }
-  }, 20);
+  }, 80);
 }
   
 </script>
