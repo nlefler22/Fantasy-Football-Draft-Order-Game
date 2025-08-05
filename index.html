@@ -306,16 +306,17 @@ function animateRace(winnerName, callback) {
     runners.forEach(runner => {
       if (runner.name === winnerName) {
         if (Math.random() < 0.75) {
-          runner.x += Math.floor(Math.random() * 8) + 3; // 3-10 spaces
+          runner.x += (Math.random() * 7 + 3) * 0.25; // 3–10 scaled down
         }
       } else {
         if (runner.x < capDistance && Math.random() < 0.5) {
-          runner.x += Math.floor(Math.random() * 8) + 1; // 1-8 spaces
+          runner.x += (Math.random() * 7 + 1) * 0.25; // 1–8 scaled down
         }
         if (runner.x >= capDistance) {
           runner.x = Math.min(runner.x, capDistance);
         }
       }
+
       runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
     });
 
