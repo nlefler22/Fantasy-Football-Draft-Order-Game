@@ -264,6 +264,7 @@ function updateResultTable() {
 function animateRace(winnerName, callback) {
   document.getElementById('whistle').play();
   const finishLine = 900;
+  const capDistance = finishLine * 0.85;
   const colors = ['blue', 'red', 'gold'];
   const runnerImgs = {
     blue: 'https://i.postimg.cc/njvYFF0C/bobbleplayerblue.png',
@@ -277,7 +278,6 @@ function animateRace(winnerName, callback) {
     const color = colors[Math.floor(Math.random() * colors.length)];
     const runnerDiv = document.createElement('div');
     runnerDiv.className = 'runner';
-    
     runnerDiv.style.top = (startY + index * 70) + 'px';
 
     const img = document.createElement('img');
@@ -301,20 +301,21 @@ function animateRace(winnerName, callback) {
   });
 
   const winnerRunner = runners.find(r => r.name === winnerName);
+
   const interval = setInterval(() => {
     runners.forEach(runner => {
-      const percent = runner.x / finishLine;
-      let speed = 0;
-
-      if (percent < 0.3) speed = (runner.name === winnerName) ? 1.9 : 2.0;
-      else if (percent < 0.6) speed = (runner.name === winnerName) ? 1.6 : 1.5;
-      else speed = (runner.name === winnerName) ? 2.1 : 1.8;
-
-      runner.x += speed + Math.random() * 0.3;
-      if (runner.name !== winnerName && runner.x >= finishLine * 0.99) {
-        runner.x = finishLine * 0.99;
+      if (runner.name === winnerName) {
+        if (Math.random() < 0.75) {
+          runner.x += Math.floor(Math.random() * 8) + 3; // 3-10 spaces
+        }
+      } else {
+        if (runner.x < capDistance && Math.random() < 0.5) {
+          runner.x += Math.floor(Math.random() * 8) + 1; // 1-8 spaces
+        }
+        if (runner.x >= capDistance) {
+          runner.x = Math.min(runner.x, capDistance);
+        }
       }
-
       runner.div.style.left = Math.min(runner.x, finishLine) + 'px';
     });
 
@@ -331,7 +332,8 @@ function animateRace(winnerName, callback) {
     }
   }, 30);
 }
-
+  
+</script>
 window.onload = generatePlayerInputs;
 </script>
 
